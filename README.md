@@ -104,4 +104,4 @@ WaveNet. Information 2022, 1, 0. https://doi.org/
 
 ### Copyright
 
-All code in this repository is 
+Copyright (C) 2022 IRCAM
