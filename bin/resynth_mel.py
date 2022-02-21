@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # coding: utf-8
+__copyright__= "Copyright (C) 2022 IRCAM"
 
 import os, sys
 

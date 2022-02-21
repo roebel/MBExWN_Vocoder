@@ -1,3 +1,6 @@
+
+__copyright__= "Copyright (C) 2022 IRCAM"
+
 import os, sys
 import numpy as np
 from pathlib import Path

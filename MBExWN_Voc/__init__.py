@@ -1,7 +1,9 @@
+__copyright__= "Copyright (C) 2022 IRCAM"
+
 import os, sys
 from typing import Dict, List, Tuple, Any, Union
 
-mbexwn_version=(1, 0, 2)
+mbexwn_version=(1, 1, 0)
 
 # this should be a directory containing domains (SING, SPEECH, VOICE) each containing
 # lists of models for that domain.

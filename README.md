@@ -1,4 +1,6 @@
 
+[]
+
 This repository is still under construction! Please check back soon
 
 # MBExWN_Vocoder
@@ -100,3 +102,6 @@ Roebel, A.; Bous, F. Neural Vocoding for Singing and Speaking Voices with the Mu
 WaveNet. Information 2022, 1, 0. https://doi.org/
 ```
 
+### Copyright
+
+All code in this repository is 
