@@ -19,7 +19,7 @@ The audio sample rate of the generated files is 24kHz.
 ### Motivation
 
 To facilitate research into voice attribute manipulation and multi speaker synthesis 
-using the~mel spectrogram as~voice representation, the present repository distributes inference scripts 
+using the mel spectrogram as voice representation, the present repository distributes inference scripts 
 together with the three trained models denoted **MW-SI-FD**, **MW-SP-FD**, and **MW-VO-FD** in the paper 
 mentioned above.
 
