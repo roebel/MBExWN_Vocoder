@@ -1,0 +1,6 @@
+tensorflow>=2.4
+numpy
+pyyaml
+tqdm
+librosa>=0.8.0
+pysndfile
