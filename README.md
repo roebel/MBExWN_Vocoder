@@ -37,9 +37,7 @@ bottleneck has been investigated in this [compagnon paper](https://www.mdpi.com/
 
 ### Demo Sounds
 
-According to the perceptual tests discussed here the quality of the generated audio is close to transparent
-for both speech and singing signals. The model has problems with excitation signals that are strongly 
-irregular though. Please look [here](http://recherche.ircam.fr/anasyn/roebel/MBExWN_demo/index.php)
+Please see [here](http://recherche.ircam.fr/anasyn/roebel/MBExWN_demo/index.php)
 for results with a previous version of the MBExWN vocoder. An updated demo page containing examples 
 for the three models distributed here will soon be added.
 
