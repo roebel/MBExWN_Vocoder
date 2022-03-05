@@ -11,7 +11,36 @@
 </p>
 
 
-# MBExWN_Vocoder
+## Content
+
+**[1. MBExWN_Vocoder](#S1)**
+
+  * [1.1. Motivation](#S1-1)
+  * [1.2. Demo sounds](#S1-2)
+
+**[2. Installation](#S2)**
+
+  * [2.1. Pretrained models](#S2-1)
+  * [2.2. Computational costs ](#S2-2)
+
+**[3. Usage](#S3)**
+
+  * [3.1 Generating mel spectrograms](#S3-1)
+  * [3.2 Performing mel inversion](#S3-2)
+
+**[4. Further info](#S4)**
+
+  * [4.1 How to cite](#S4-1)
+  * [4.2 Acknowlegdments](#S4-2)
+  * [4.3 ChangeLog](#S4-3)
+  * [4.4 Copyright](#S4-4)
+
+----
+
+
+<a name="S1"></a>
+## 1. MBExWN_Vocoder 
+
 
 This repository contains the python sources of the Multi-Band Excited WaveNet Neural vocoder, a neural vocoder
 allowing mel spectrogram inversion for speech and singing voices with varying identities, languages, 
@@ -26,7 +55,8 @@ a near transparent audio quality for a variety of voice identities
 (speakers and singers), languages, and voice qualities. 
 The audio sample rate of the generated files is 24kHz. 
 
-### Motivation
+<a name="S1-1"></a>
+### 1.1 Motivation 
 
 To facilitate research into voice attribute manipulation and multi speaker synthesis 
 using the mel spectrogram as voice representation, the present repository distributes inference scripts 
@@ -35,13 +65,15 @@ the [paper](https://www.mdpi.com/2078-2489/13/3/103)
 mentioned above. An application for transposition of speech and singing signals using an auto encoder with 
 bottleneck has been investigated in this [compagnon paper](https://www.mdpi.com/2078-2489/13/3/102).
 
-### Demo Sounds
+<a name="S1-2"></a>
+### 1.2 Demo Sounds
 
 Please see [here](http://recherche.ircam.fr/anasyn/roebel/MBExWN_demo/index.php)
 for results with a previous version of the MBExWN vocoder. An updated demo page containing examples 
 for the three models distributed here will soon be added.
 
-##  Installation
+<a name="S2"></a>
+## 2. Installation
 
 The MBExWN Vocoder can be run directly from the source directory or installed via pip (to be done)
 
@@ -67,7 +99,8 @@ You can install these by means of
 $ pip install -r requirements.txt
 ```
 
-#### Pretrained models
+<a name="S2-1"></a>
+### 2.1 Pretrained models
 
 Due to the download size limitations on github we do not include the pretrained models within the repos. 
 The prepretrained models are available via a separate download link. These can be installed by means of running 
@@ -80,7 +113,8 @@ the shell script
 *We gratefully acknowledge the support of GENCI that made it possible to train the models 
 on the super computer [jean-zay](http://www.idris.fr/jean-zay/).*
 
-### Computational costs
+<a name="S2-2"></a>
+### 2.2 Computational costs
 
 The mel inverter is sufficiently efficient to perform resynthesis from mel spectrograms two times faster than 
 real-time on a single core of a Laptop CPU.  
@@ -91,9 +125,11 @@ Conv2D operator is encountered. Therefore, MBExWN will only achieve optimal effi
 is encountered for the second time (see  [here](https://github.com/tensorflow/tensorflow/issues/54456) for 
 more information).
 
-### Usage
+<a name="S3"></a>
+## 3. Usage
 
-#### Generating mel spectrograms
+<a name="S3-1"></a>
+### 3.1 Generating mel spectrograms
 
 The input format of the MBExWN  vocoder are 80 channel mel spectrograms with frame rate of 80 Hz.
 To generate these mel spectograms you can use the script ./bin/generate_mel.py as follows
@@ -112,9 +148,10 @@ These files are can be read by the two further scripts that allow
 - recreating sounds from a mel spectrogram, as well as 
 - visualizing a mel spectrogram
 
-#### Running mel inversion
+<a name="S3-1"></a>
+### 3.2 Performing mel inversion
 
-from the command line
+#### 3.2.1 Command line
 
 The resynthesis of  sound files from a mel spectrograms stored in a pickle files is performed by mean sof the script 
 `./bin/resynth_mel.py`. Assume you have a sound file test.wav you can perofrm an analysis/resynthesis cycle by means of
@@ -157,7 +194,7 @@ changed using the following two command line arguments:
 
 Please see `resynth_mel.py --help` for other command line arguments.
 
-#### Using the MBExWN vocoder as a python package
+#### 3.2.2 Python package
 
 You may also use MBExWN as a python package. The principale operation is as fllows
 
@@ -181,7 +218,11 @@ syn_audio = MelInv.synth_from_mel(log_mel_spectrogram)
 
 For an example please see the source code of the script `resynth_mel`.
 
-### How to cite
+<a name="S4"></a>
+## 4. Further infos
+
+<a name="S4-1"></a>
+### 4.1 How to cite
 
 In case you use the code or the models for your own work please cite 
 
@@ -191,18 +232,20 @@ Roebel, Axel, and Frederik Bous. 2022.
    Information 13, no. 3: 103. https://doi.org/10.3390/info13030103 
 ```
 
-
-### Acknowledgements
+<a name="S4-2"></a>
+### 4.2 Acknowledgements
 
 This research was funded by ANR project ARS, grant number ANR-19-CE38-0001-01 and 
 computation were performed using HPC resources from GENCI-IDRIS (Grant 2021-AD011011177R1).
 
-### ChangeLog
+<a name="S4-3"></a>
+### 4.3 ChangeLog
 
 - Version 1.2.0  (2022/03/05)
   - Initial release.
 
-### Copyright
+<a name="S4-4"></a>
+### 4.4 Copyright
 
 Copyright (c) 2022 IRCAM
 
