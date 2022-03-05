@@ -12,7 +12,7 @@ import tensorflow as tf
 from typing import List, Union, Any, Sequence, Dict, Tuple
 import copy
 from ...sig_proc.resample import resample
-from ...glottis import FglotspecLF
+from ...glottis.FglotspecLF import FglotspecLF
 from ...sig_proc import window as sig_window
 
 from .preprocess import get_mel_filter, get_filters, get_mel_lin_interpol_params
