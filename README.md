@@ -76,10 +76,12 @@ The prepretrained models are available via a separate download link. These can b
 the shell script 
 
 ```bash
-./scripts/install_MelInvWeights.sh (to do)
+# ATTENTION this is not yet working!
+./scripts/install_MBExWN_models.sh
 ```
 
-We gratefully acknowlegde the support of   models have been pretrained on the [jean-zay computer](http://www.idris.fr/jean-zay/) of  
+*We gratefully acknowledge the support of GENCI that made it possible to train the models 
+on the super computer [jean-zay](http://www.idris.fr/jean-zay/).*
 
 ### Computational costs
 
@@ -122,6 +124,12 @@ In case you use the code or the models for your own work please cite
 Roebel, A.; Bous, F. Neural Vocoding for Singing and Speaking Voices with the Multi-Band Excited
 WaveNet. Information 2022, 1, 0. https://doi.org/
 ```
+
+
+### Acknowledgements
+
+This research was funded by ANR project ARS, grant number ANR-19-CE38-0001-01 and 
+computation were performed using HPC resources from GENCI-IDRIS (Grant 2021-AD011011177R1).
 
 ### Copyright
 
