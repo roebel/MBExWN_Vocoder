@@ -1,27 +1,27 @@
 #!/usr/bin/env python3
 # coding: utf-8
-#
+# AUTHOR:  A.Roebel
+# COPYRIGHT: Copyright(c) 2022 IRCAM - Roebel
 
-
-__copyright__= "Copyright (C) 2022 IRCAM"
 import os, sys
 import numpy as np
 # silence verbose TF feedback
 
 from pysndfile import sndio
-from fileio import iovar
 
-# check whether we running from the source directroy, in which case the MBExWn_NVoc directry should be
+# check whether we running from the source directory, in which case the MBExWn_NVoc directry should be
 # found next to the current directory. If this is the case we don't want to impot the installed version
-test_path = os.path.join(os.path.dirname(__file__), '..', 'MBExWN_Voc')
+test_path = os.path.join(os.path.dirname(__file__), '..', 'MBExWN_NVoc')
 if os.path.exists(test_path):
-    print(f"development version of MBExWN_Voc directory detected. We will adapt the path to use it", file=sys.stderr )
+    print(f"development version of MBExWN_NVoc directory detected. We will adapt the path to use it", file=sys.stderr )
     sys.path.insert(0, os.path.dirname(test_path))
 
-from MBExWN_Voc.vocoder.model import config_utils as cutils
-from MBExWN_Voc.vocoder.model.preprocess import compute_mel_spectrogram_internal
-from MBExWN_Voc import mbexwn_version, get_config_file
-from MBExWN_Voc.sig_proc.resample import resample
+from MBExWN_NVoc.fileio import iovar
+
+from MBExWN_NVoc.vocoder.model import config_utils as cutils
+from MBExWN_NVoc.vocoder.model.preprocess import compute_mel_spectrogram_internal
+from MBExWN_NVoc import list_models, mbexwn_version, get_config_file
+from MBExWN_NVoc.sig_proc.resample import resample
 
 
 def main(input_audio_files, output_dir):

@@ -1,5 +1,10 @@
-#!/usr/bin/env python
 # coding: utf-8
+# AUTHORS
+#    A.Roebel
+# COPYRIGHT
+#    Copyright(c) 2021 - 2022 IRCAM, Roebel
+#
+# MBExWN model
 
 import numpy as np
 import copy
@@ -15,12 +20,12 @@ except ModuleNotFoundError:
     from librosa.core.time_frequency import mel_frequencies as librosa_mel_frequencies
 
 from .preprocess import get_mel_filter
-from .custom_layers import LinInterpLayer
-from .custom_AE_layers import Conv1DUpDownSample
-from .custom_pulsed_generator import MBWavePaN, MBExWN
+from .custom_pulsed_generator import MBExWN
 from .config_utils import  check_spect_loss_config
 from .tf_preprocess import TFSpectProcessor, TFMelProcessor
 from .training_utils import ParamSchedule
+
+from .tf2_components.layers.support_layers import TF2C_LinInterpLayer as LinInterpLayer
 
 from .tf2_components.tf2c_base_model import TF2C_BasePretrainableModel
 
@@ -41,27 +46,14 @@ class SpectLossComponents(tf.Module):
         self.preprocess_config = copy.deepcopy(preprocess_config)
         self.training_config = copy.deepcopy(training_config)
 
-        self.sub_sample_fact_of_stage_output = sub_sample_facts
         self.sample_rate = self.preprocess_config["sample_rate"]
         spect_loss_config = copy.deepcopy(self.training_config["spect_loss_config"])
         check_spect_loss_config(spect_loss_config)
-        self.stage = self.training_config.get("stage", None)
 
         self.train_with_avg = train_with_avg
 
-        self.MCCTP_loss_n = None
-        self.MCCTS_loss_n = None
         self.spect_loss_n = None
-        self.PP_loss_n = None
-        self.BC_loss_n = None
-        self.MODSPEC_loss_n = None
-        self.NLL_loss_n = None
         self.NPOW_loss_n = None
-        self.NLL_min_var = np.square(spect_loss_config.get("NLL_min_std", 0.01), dtype=np.float32)
-        if "spect_loss_weight" in spect_loss_config:
-            raise RuntimeError(
-                "spect_loss_config::error::spect_loss_weight is no longer supported for MelGen generators files."
-                "Use spect_loss_schedule instead.")
         if "spect_loss_schedule" in spect_loss_config:
             if spect_loss_config["spect_loss_schedule"] is None:
                 self.spect_loss_weight = None
@@ -71,33 +63,6 @@ class SpectLossComponents(tf.Module):
         else:
             self.spect_loss_weight = ParamSchedule(name="spect_loss_weight", initial=1., quiet=quiet)
 
-
-        self.MCCTP_loss_weight = spect_loss_config.get("MCCTP_loss_weight", 0)
-        self.MCCTS_loss_weight = spect_loss_config.get("MCCTS_loss_weight", 0)
-        self.PP_loss_weight = spect_loss_config.get("PP_loss_weight", 0)
-        self.BC_loss_weight = spect_loss_config.get("BC_loss_weight", 0)
-        self.MODSPEC_loss_weight = spect_loss_config.get("MODSPEC_loss_weight", 0)
-        self.MCCT_loss_weight = spect_loss_config.get("MCCT_loss_weight", 0)
-        self.NLL_loss_weight = spect_loss_config.get("NLL_loss_weight", 0)
-        self.NPOW_loss_weight = spect_loss_config.get("NPOW_loss_weight", 0)
-
-        self.PP_band_width_Hz = spect_loss_config.get("PP_band_width_Hz", 500)
-        self.PP_segment_size_s = spect_loss_config.get("PP_segment_size_s", 0.025)
-        self.PP_loss_method = spect_loss_config.get("PP_loss_method", "L1")
-
-        self.BC_segment_size_s = spect_loss_config.get("BC_segment_size_s", 0.025)
-        self.BC_loss_method = spect_loss_config.get("BC_loss_method", "L1")
-        self.BC_max_off_Hz = spect_loss_config.get("BC_max_off_Hz", 2000.)
-        self.MODSPEC_loss_method = spect_loss_config.get("MODSPEC_loss_method", "L1")
-
-        MCC_segment_size_s = spect_loss_config.get("MCC_segment_size_s", 0.05)
-        MCC_pad_size_s = spect_loss_config.get("MCC_pad_size_s", 0.02)
-        self.MCCTS_segment_size = None
-        self.MCCTS_pad_size = None
-        self.MCC_segment_size = None
-        self.MCC_pad_size = None
-        self.PP_band_width_bins = None
-        self.PP_segment_size = None
 
         self.spect_error_gain = spect_loss_config.get("spect_error_gain", 1)
 
@@ -116,13 +81,6 @@ class SpectLossComponents(tf.Module):
                                                       dtype=np.float32)[:, np.newaxis, np.newaxis]
             self.mean_smoothing_win /= np.sum(self.mean_smoothing_win)
 
-        if self.MCCTS_loss_weight:
-            if not (MCC_segment_size_s and MCC_pad_size_s):
-                raise RuntimeError("WaveSGen::error:: MCC_segment_size_s and MCC_pad_size_s must be set to " 
-                                   "a valid duration if MCCTS_loss_weight is not 0")
-
-            self.MCCTS_segment_size = int(MCC_segment_size_s * self.sample_rate)
-            self.MCCTS_pad_size = int(MCC_pad_size_s * self.sample_rate)
 
         if "loss_type" in spect_loss_config:
 
@@ -141,47 +99,9 @@ class SpectLossComponents(tf.Module):
         self.stft_processor = None
         if ((self.spect_loss_weight is not None)
                 or (self.NPOW_loss_weight > 0)
-                or (self.MCCTP_loss_weight > 0) or (self.PP_loss_weight > 0)or (self.BC_loss_weight > 0)):
+                ):
             self.stft_processor = TFSpectProcessor(spect_loss_config, self.sample_rate)
 
-        if "loss_type" in spect_loss_config:
-            self.PP_segment_size = [int((self.PP_segment_size_s + hs) / hs) if self.PP_segment_size_s else None
-                                     for lt, hs in zip(spect_loss_config["loss_type"],
-                                                       spect_loss_config["hop_size"]) if lt]
-            self.PP_band_width_bins = [int((ffs * self.PP_band_width_Hz / self.sample_rate + 0.5)) if self.PP_band_width_Hz else None
-                                       for ffs in self.stft_processor.fft_size]
-
-            self.BC_segment_size = [int((self.BC_segment_size_s + hs) / hs) if self.BC_segment_size_s else None
-                                     for lt, hs in zip(spect_loss_config["loss_type"],
-                                                       spect_loss_config["hop_size"]) if lt]
-
-            self.BC_max_off = [int(fft_size * self.BC_max_off_Hz/self.sample_rate)+1 if self.BC_max_off_Hz else None
-                                     for lt, fft_size in zip(spect_loss_config["loss_type"],
-                                                       self.stft_processor.fft_size) if lt]
-
-
-            self.MCC_segment_size = [int((MCC_segment_size_s + hs) / hs)
-                                     for lt, hs in zip(spect_loss_config["loss_type"],
-                                                       spect_loss_config["hop_size"]) if lt]
-
-            self.MCC_pad_size = [int((MCC_pad_size_s + hs) / hs)
-                                 for lt, hs in zip(spect_loss_config["loss_type"],
-                                                   spect_loss_config["hop_size"]) if lt]
-            spect_loss_config["loss_type"] = [lt for lt in spect_loss_config["loss_type"] if lt]
-
-            self.spect_loss_type = spect_loss_config["loss_type"]
-            if not [1 for lt in self.spect_loss_type if (lt & self.MCCTP_loss_bit)]:
-                self.MCCTP_loss_weight = 0
-            if not [1 for lt in self.spect_loss_type if (lt & self.PP_loss_bit)]:
-                self.PP_loss_weight = 0
-            if not [1 for lt in self.spect_loss_type if (lt & self.BC_loss_bit)]:
-                self.BC_loss_weight = 0
-            if not [1 for lt in self.spect_loss_type if (lt & self.MODSPEC_loss_bit)]:
-                self.MODSPEC_loss_weight = 0
-            if not [1 for lt in self.spect_loss_type if (lt & self.MCCT_loss_bit)]:
-                self.MCCT_loss_weight = 0
-            if not [1 for lt in self.spect_loss_type if (lt & self.NLL_loss_bit)]:
-                self.NLL_loss_weight = 0
 
         # frequency dependent weight
         self.low_band_extra_weight = spect_loss_config.get("low_band_extra_weight", 0)
@@ -201,10 +121,7 @@ class SpectLossComponents(tf.Module):
         self.mel_loss_n = None
         self.mell_loss_weight = 0
         if ("mell_loss_weight" in spect_loss_config) and spect_loss_config["mell_loss_weight"] > 0:
-            self.mel_processor = TFMelProcessor(self.preprocess_config,
-                                                sub_sampled=(None
-                                                             if self.stage is None
-                                                             else self.sub_sample_fact_of_stage_output[self.stage]))
+            self.mel_processor = TFMelProcessor(self.preprocess_config)
             self.mell_loss_weight = spect_loss_config["mell_loss_weight"]
             self.mell_loss_ign_attn_db = 40
             if ("lin_amp_off" in self.preprocess_config) and self.preprocess_config["lin_amp_off"] > 0:
@@ -212,40 +129,16 @@ class SpectLossComponents(tf.Module):
         self.last_plot = 0
 
 
-    def low_band_extra_weight_generator(self, extra_weight, transition, position, length):
-        """
-        spectal domain low frequency band extra weight generator
-        generates a simple algebraic sigmoid weighting function W(f)
-        the function transitions from
-        W(0) = 1 + low_band_extra_weight,
-        W(low_band_extra_weight_limit_Hz) = 1 + low_band_extra_weight * 0.5
-        W(oo) = 1
-        and achieves 90% and 10% of the transition at frequencies
-        low_band_extra_weight_limit_Hz  +- 0.5 * low_band_extra_weight_transition_Hz
-        """
-        x = 4 * (-np.arange(length).astype(np.float32) + position) *2 / transition
-        return (extra_weight * (0.5 + 0.5 * x / (1 + np.abs(x))) + 1)[np.newaxis, np.newaxis, :]
+
 
 
     def calc_spectral_error(self, ref_audio, gen_audio):
         spect_error = 0 if (self.spect_loss_weight is not None) else None
-        MCCTP_error = 0 if self.MCCTP_loss_weight else None
-        PP_error = 0 if self.PP_loss_weight else None
-        BC_error = 0 if self.BC_loss_weight else None
-        MODSPEC_error = 0 if self.MODSPEC_loss_weight else None
-        MCCT_error = 0 if self.MCCT_loss_weight else None
-        NLL_error = 0 if self.NLL_loss_weight else None
         NPOW_error = 0 if self.NPOW_loss_weight else None
 
         # print("calc_spectral_error::audio in:", ref_audio.shape, gen_audio.shape)
 
         spect_cnt = 0
-        MCCTP_cnt = 0
-        PP_cnt = 0
-        BC_cnt = 0
-        MODSPEC_cnt = 0
-        MCCT_cnt = 0
-        NLL_cnt = 0
         NPOW_cnt = 0
         if len(ref_audio.shape) == 3:
             in_spec_list = self.stft_processor.generate_stft(ref_audio[:, :, 0])
@@ -264,57 +157,16 @@ class SpectLossComponents(tf.Module):
                 syn_spec_list = self.stft_processor.generate_stft(gen_audio)
             else:
                 syn_spec_list = self.stft_processor.generate_stft(tf.reshape(gen_audio, (1, -1)))
-        else:
-            if len(gen_audio.shape) == 4:
-                syn_spec_list = self.stft_processor.generate_stft(gen_audio[:, :, :, 0])
-            elif len(gen_audio.shape) == 3:
-                syn_spec_list = self.stft_processor.generate_stft(gen_audio)
-            else:
-                syn_spec_list = self.stft_processor.generate_stft(tf.reshape(gen_audio, (1, gen_audio.shape[1], -1)))
 
         ri_ref_sp = None
         ri_syn_sp = None
         for i_spec, (_ref_sp, _syn_sp, lt, lbew) in enumerate(zip(in_spec_list, syn_spec_list, self.spect_loss_type, self.low_band_extra_weight)):
             # print(i_spec, lt, _ref_sp.shape, _syn_sp.shape)
             # print(i_spec, lt, ref_sp.shape, syn_sp.shape)
-            if (self.stage is not None) and self.sub_sample_fact_of_stage_output[self.stage] != 1:
-                # create TP filter corresponding to stage
-                band_stop_ind = int((_syn_sp.shape[-1] - 1) // self.sub_sample_fact_of_stage_output[self.stage])
-                band_pass_ind = int(0.95 * band_stop_ind)
-                tp = tf.reshape(tf.concat((tf.ones(band_pass_ind, tf.float32),
-                                           tf.linspace(1., 0., band_stop_ind - band_pass_ind),
-                                           tf.zeros(_syn_sp.shape[-1] - band_stop_ind, tf.float32)
-                                           ), axis=0), (1, 1, _syn_sp.shape[-1]))
-                # print(f" tp.shape {tp.shape}  syn_sp.shape {_syn_sp.shape} ref_sp.shape {_ref_sp.shape}")
-                # plt.figure()
-                # print("refaudio:",ref_audio.shape)
-                # plt.plot(ref_audio[0,: ,0].numpy())
-                # plt.figure()
-                # print("tp",tp.shape, tp.numpy())
-                # plt.plot(tf.abs(tp[0,0]).numpy())
-                # plt.figure()
-                # plt.imshow(tf.abs(_ref_sp[0]).numpy().T)
-                # plt.colorbar()
-                # for the spectral loss we band limit only the input sound file
-                _ref_sp = tf.cast(tp, _ref_sp.dtype) * _ref_sp
-                # plt.figure()
-                # plt.imshow(tf.abs(_ref_sp[0]).numpy().T)
-
 
             ref_sp = self.stft_processor.scale_spec(_ref_sp)
             syn_sp = self.stft_processor.scale_spec(_syn_sp)
 
-            # produce average spectrum to reduce variance in the noise component which should avoid using pulses
-            # for representing the mean spectrum of the noise level.
-            syn_sp_std = None
-            syn_sp_mean = None
-            if self.train_with_avg is not None and self.train_with_avg > 1:
-                # we slightly offset the estimated variance to ensure it does not become to small so that gradients explode. We do not do
-                #    use tf.maximum here to keep the gradients working
-                syn_sp_mean, syn_sp_var = tf.nn.moments(syn_sp, axes=[1])
-                syn_sp_std = tf.sqrt(syn_sp_var + self.NLL_min_var)
-                tf.debugging.assert_all_finite(syn_sp_std, "tf.reduce_any(syn_sp_std) is nan")
-                syn_sp = syn_sp_mean
 
             if (self.spect_loss_weight is not None) and (lt & self.spect_loss_bit):
                 # if self.last_plot > 100:
@@ -368,43 +220,19 @@ class SpectLossComponents(tf.Module):
 
 
         spect_loss_n = None
-        MCCTP_loss_n = None
-        PP_loss_n = None
-        BC_loss_n = None
-        MODSPEC_loss_n = None
-        MCCT_loss_n = None
-        NLL_loss_n = None
         NPOW_loss_n = None
 
         if spect_cnt:
             spect_loss_n = self.spect_error_gain * spect_error / spect_cnt
-        if MCCTP_cnt:
-            MCCTP_loss_n = MCCTP_error / MCCTP_cnt
-        if BC_cnt:
-            BC_loss_n = BC_error / BC_cnt
-
-        if MODSPEC_cnt:
-            MODSPEC_loss_n = MODSPEC_error / MODSPEC_cnt
-        if MCCT_cnt:
-            MCCT_loss_n = MCCT_error / MCCT_cnt
-        if NLL_cnt:
-            NLL_loss_n = NLL_error / NLL_cnt
         if NPOW_cnt:
             NPOW_loss_n = NPOW_error / NPOW_cnt
 
-        return spect_loss_n, PP_loss_n, BC_loss_n, MCCT_loss_n, MCCTP_loss_n, NLL_loss_n, NPOW_loss_n, MODSPEC_loss_n
+        return spect_loss_n, NPOW_loss_n
 
     def calc_losses(self, in_audio, outputs):
 
         mel_loss_n = None
         spect_loss_n = None
-        PP_loss_n = None
-        BC_loss_n = None
-        MODSPEC_loss_n = None
-        MCCT_loss_n = None
-        MCCTP_loss_n = None
-        MCCTS_loss_n = None
-        NLL_loss_n = None
         NPOW_loss_n = None
 
         if self.mean_smoothing_win is not None:
@@ -418,13 +246,7 @@ class SpectLossComponents(tf.Module):
 
         if self.stft_processor:
             (spect_loss_n,
-             PP_loss_n,
-             BC_loss_n,
-             MCCT_loss_n,
-             MCCTP_loss_n,
-             NLL_loss_n,
-             NPOW_loss_n,
-             MODSPEC_loss_n) = self.calc_spectral_error(in_audio, outputs)
+             NPOW_loss_n,) = self.calc_spectral_error(in_audio, outputs)
 
         if self.mel_processor:
             mel_spect_syn = self.mel_processor(tf.reshape(outputs, outputs.shape[:2]))
@@ -456,19 +278,16 @@ class SpectLossComponents(tf.Module):
             #    self.last_plot += 1
 
 
-        return mel_loss_n, spect_loss_n, PP_loss_n, BC_loss_n, MCCT_loss_n, MCCTP_loss_n, MCCTS_loss_n, NLL_loss_n, NPOW_loss_n, MODSPEC_loss_n
+        return mel_loss_n, spect_loss_n, NPOW_loss_n
 
 
 class WaveGenerator(SpectLossComponents, TF2C_BasePretrainableModel):
     def __init__(self, model_config: Dict, training_config, preprocess_config,
-                 sub_sample_facts=None, quiet=False, **kwargs):
+                 quiet=False, **kwargs):
 
         # cannot use super() here as the various base classes are
         tf.keras.Model.__init__(self, dtype=training_config['ftype'], **kwargs)
-        self.sub_sample_facts = sub_sample_facts
-        SpectLossComponents.__init__(self, training_config, preprocess_config, quiet=quiet,
-                                     sub_sample_facts=self.sub_sample_facts,
-                                     train_with_avg=model_config.get("ns_train_with_avg", 1))
+        SpectLossComponents.__init__(self, training_config, preprocess_config, quiet=quiet)
 
         self.model_config = copy.deepcopy(model_config)
         self.training_config = copy.deepcopy(training_config)
@@ -489,18 +308,6 @@ class WaveGenerator(SpectLossComponents, TF2C_BasePretrainableModel):
 
         self.mel_loss_n = None
         self.spect_loss_n = None
-        self.NLL_loss_n = None
-        self.PP_loss_n = None
-        self.MCCT_loss_n = None
-        self.MCCTP_loss_n = None
-        self.MCCTS_loss_n = None
-        self.TD_loss_win = None
-        self.TD_loss_weight = training_config.get("TD_loss_weight", 0.)
-        TD_loss_win_len = training_config.get("TD_loss_win_len", 0)
-        if TD_loss_win_len and self.TD_loss_weight > 0:
-            self.TD_loss_win = np.hanning(TD_loss_win_len)[np.newaxis]
-            self.TD_loss_win = self.TD_loss_win / np.sum(self.TD_loss_win)
-
 
     @property
     def has_components(self):
@@ -516,7 +323,6 @@ class WaveGenerator(SpectLossComponents, TF2C_BasePretrainableModel):
         config.update(model_config=self.model_config)
         config.update(training_config=self.training_config)
         config.update(preprocess_config=self.preprocess_config)
-        config.update(sub_sample_facts=self.sub_sample_facts)
 
         return config
 
@@ -525,9 +331,7 @@ class WaveGenerator(SpectLossComponents, TF2C_BasePretrainableModel):
         return "".join(
             ["{}:{:6.3f} ".format(ff, ll) if ll is not "SP_loss" else "{}:{:6.3g} ".format(ff, ll)
              for ff, ll in zip(["tot_loss", "SP_loss", "mel_loss",
-                                "MCCTP_loss", "PP_loss", "BC_loss", "MCCT_loss", "MCCTS_loss",
-                                "NLL_loss", "NPOW_loss",
-                                "TD_rms", "MS_loss"], losses)
+                                "NPOW_loss"], losses)
              if ll is not None])
 
     def summary(self, line_length=None, positions=None, print_fn=None, short=False):
@@ -542,9 +346,7 @@ class WaveGenerator(SpectLossComponents, TF2C_BasePretrainableModel):
 
     def total_loss(self, outputs, inputs=None, step=0):
 
-        (self.mel_loss_n, self.spect_loss_n, self.PP_loss_n, self.BC_loss_n,
-         self.MCCT_loss_n, self.MCCTP_loss_n, self.MCCTS_loss_n,
-         self.NLL_loss_n, self.NPOW_loss_n, self.MODSPEC_loss_n) = self.calc_losses(self.in_audio, outputs)
+        (self.mel_loss_n, self.spect_loss_n, self.NPOW_loss_n) = self.calc_losses(self.in_audio, outputs)
 
         total_loss_n = tf.constant(0, dtype=tf.float32)
         if self.spect_loss_n is not None:
@@ -555,55 +357,22 @@ class WaveGenerator(SpectLossComponents, TF2C_BasePretrainableModel):
         if self.mel_loss_n is not None:
             total_loss_n += self.mel_loss_n * self.mell_loss_weight
             tf.summary.scalar(name='mel_loss_n', data=self.mel_loss_n)
-        if self.NLL_loss_n is not None:
-            total_loss_n += self.NLL_loss_n * self.NLL_loss_weight
-            tf.summary.scalar(name='NLL_loss_n', data=self.NLL_loss_n)
+
         if self.NPOW_loss_n is not None:
             total_loss_n += self.NPOW_loss_n * self.NPOW_loss_weight
             tf.summary.scalar(name='NPOW_loss_n', data=self.NPOW_loss_n)
-        if self.MCCT_loss_n is not None:
-            total_loss_n += self.MCCT_loss_n * self.MCCT_loss_weight
-            tf.summary.scalar(name='MCCT_loss_n', data=self.MCCT_loss_n)
-        if self.MCCTP_loss_n is not None:
-            total_loss_n += self.MCCTP_loss_n * self.MCCTP_loss_weight
-            tf.summary.scalar(name='MCCTP_loss_n', data=self.MCCTP_loss_n)
-        if self.MCCTS_loss_n is not None:
-            total_loss_n += self.MCCTS_loss_n * self.MCCTS_loss_weight
-            tf.summary.scalar(name='MCCTS_loss_n', data=self.MCCTS_loss_n)
-        if self.PP_loss_n is not None:
-            total_loss_n += self.PP_loss_n * self.PP_loss_weight
-            tf.summary.scalar(name='PP_loss_n', data=self.PP_loss_n)
-        if self.BC_loss_n is not None:
-            total_loss_n += self.BC_loss_n * self.BC_loss_weight
-            tf.summary.scalar(name='BC_loss_n', data=self.BC_loss_n)
-        if self.MODSPEC_loss_n is not None:
-            total_loss_n += self.MODSPEC_loss_n * self.MODSPEC_loss_weight
-            tf.summary.scalar(name='MODSPEC_loss_n', data=self.MODSPEC_loss_n)
-        TD_loss_n = None
-        if self.TD_loss_win is not None:
-            print("ATTENTION::apparently the position of the DTLoss window at the sart of the segment is unstable ?"
-                  " It appears the model is not able to reduce the TD loss at that position ")
-            TD_loss_n = tf.sqrt(tf.reduce_sum(tf.square((tf.reshape(self.in_audio,
-                                                                    self.in_audio.shape[:2])[:,
-                                                         :self.TD_loss_win.shape[1]]
-                                                         - tf.reshape(outputs,
-                                                                      outputs.shape[:2])[:, :self.TD_loss_win.shape[1]])
-                                                        * self.TD_loss_win)))
-            total_loss_n += TD_loss_n * self.TD_loss_weight
-            tf.summary.scalar(name='TD_loss_n', data=TD_loss_n)
 
         tf.summary.scalar(name='total_loss_n', data=total_loss_n)
-        return (total_loss_n, self.spect_loss_n, self.mel_loss_n, self.MCCTP_loss_n, self.PP_loss_n, self.BC_loss_n, self.MCCT_loss_n,
-                self.MCCTS_loss_n, self.NLL_loss_n, self.NPOW_loss_n, TD_loss_n, self.MODSPEC_loss_n)
+        return (total_loss_n, self.spect_loss_n, self.mel_loss_n, self.NPOW_loss_n)
 
 
 class PaNWaveNet(WaveGenerator):
     def __init__(self, model_config, training_config, preprocess_config, quiet=False, use_tf25_compatible_implementation=False, **kwargs):
 
         mc_sub = copy.deepcopy(model_config)
-        mc_sub.update(ns_train_with_avg=None)
+
         super().__init__(mc_sub, training_config, preprocess_config,
-                         sub_sample_facts=None, quiet=quiet, **kwargs)
+                         quiet=quiet, **kwargs)
 
         self._pretrain_activations = False
 
@@ -627,7 +396,7 @@ class PaNWaveNet(WaveGenerator):
             self.block = MBExWN(**model_config_nonorm, preprocess_config=preprocess_config, quiet=quiet,
                                 use_tf25_compatible_implementation=use_tf25_compatible_implementation)
         else:
-            self.block = MBWavePaN(**model_config_nonorm, preprocess_config=preprocess_config, quiet=quiet)
+            raise NotImplementedError("PaNWaveNet::error:: required parameter pulse_rate_factor is missing in your model config.")
         self.pulse_frequency = None
         self.n_group = 1
 
@@ -772,7 +541,6 @@ class PaNWaveNet(WaveGenerator):
 
     def get_config(self):
         config = super().get_config()
-        del config["sub_sample_facts"]
         return config
 
 

@@ -1,5 +1,9 @@
-
-__copyright__= "Copyright (C) 2022 IRCAM"
+# AUTHORS
+#    A.Roebel
+# COPYRIGHT
+#    Copyright(c) 2021 - 2022 IRCAM, Roebel
+#
+# MELInverter implementation
 
 import os, sys
 import numpy as np

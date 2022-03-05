@@ -1,3 +1,12 @@
+# coding: utf-8
+# AUTHORS
+#    A.Roebel
+# COPYRIGHT
+#    Copyright(c) 2021 - 2022 IRCAM, Roebel
+#
+#  model creator
+
+
 from .wavegen_1d import PaNWaveNet
 
 def create_model(hparams, training_config, preprocess_config,

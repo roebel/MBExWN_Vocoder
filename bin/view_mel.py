@@ -1,5 +1,6 @@
 #! /usr/bin/env python3
-__copyright__= "Copyright (C) 2022 IRCAM"
+# AUTHOR:  A.Roebel
+# COPYRIGHT: Copyright(c) 2022 IRCAM - Roebel
 
 import os
 import sys
@@ -11,26 +12,26 @@ import matplotlib.pyplot as plt
 
 # check whether we running from the source directroy, in which case the MBExWn_NVoc directry should be
 # found next to the current directory. If this is the case we don't want to impot the installed version
-test_path = os.path.join(os.path.dirname(__file__), '..', 'MBExWN_Voc')
+test_path = os.path.join(os.path.dirname(__file__), '..', 'MBExWN_NVoc')
 if os.path.exists(test_path):
-    print(f"development version of MBExWN_Voc directory detected. We will adapt the path to use it", file=sys.stderr )
+    print(f"development version of MBExWN_NVoc directory detected. We will adapt the path to use it", file=sys.stderr )
     sys.path.insert(0, os.path.dirname(test_path))
 
-from MBExWN_Voc.vocoder.model import config_utils as cutils
-from MBExWN_Voc.vocoder.model.preprocess import compute_mel_spectrogram_internal
-from MBExWN_Voc import list_models, mbexwn_version, get_config_file
-from MBExWN_Voc.sig_proc.resample import resample
+from MBExWN_NVoc.vocoder.model import config_utils as cutils
+from MBExWN_NVoc.vocoder.model.preprocess import compute_mel_spectrogram_internal
+from MBExWN_NVoc import list_models, mbexwn_version, get_config_file
+from MBExWN_NVoc.sig_proc.resample import resample
 
 
 try:
-    from MBExWN_Voc.vocoder.model.config_utils import read_config, modify_config
-    from MBExWN_Voc.vocoder.model.preprocess import compute_mel_spectrogram_internal
+    from MBExWN_NVoc.vocoder.model.config_utils import read_config, modify_config
+    from MBExWN_NVoc.vocoder.model.preprocess import compute_mel_spectrogram_internal, get_stat_env
 except (ModuleNotFoundError, ImportError):
     new_path = os.path.join(os.path.dirname(__file__), '..')
-    print(f"could not import  MBExWN_Voc.mel_inverter, try with extended path  {new_path}" )
+    print(f"could not import  MBExWN_NVoc.mel_inverter, try with extended path  {new_path}" )
     sys.path.insert(0, new_path)
-    from MBExWN_Voc.vocoder.model.config_utils import read_config, modify_config
-    from MBExWN_Voc.vocoder.model.preprocess import compute_mel_spectrogram_internal, get_stat_env
+    from MBExWN_NVoc.vocoder.model.config_utils import read_config, modify_config
+    from MBExWN_NVoc.vocoder.model.preprocess import compute_mel_spectrogram_internal, get_stat_env
 
 def uniq_name(infile, infile_list) :
     other_list = [ff for ff in infile_list if ff != infile]
@@ -106,7 +107,10 @@ if __name__ == "__main__":
             mell = compute_mel_spectrogram_internal(ss_masked.T, preprocess_config=pp, do_post=False)[0][0].T
         except Exception:
             dd = iov.load_var(infile)
-            mell = dd['mell']
+            if 'mell' in dd:
+                mell = dd['mell']
+            else:
+                mell = np.log(np.fmax(dd['mel'], 1e-5))
 
         plot_data[infile] = mell
         print(f"infile {infile}: max mell {np.max(mell)}")
@@ -135,12 +139,13 @@ if __name__ == "__main__":
         fige.colorbar(ime, ax=axe, fraction=0.05,pad=0.02)
         axe.set_title(id_file_name)
         axe.grid(True)
-        axs.plot(np.arange(len(snd_data[infile])) /sr, snd_data[infile], label="snd")
+        if infile in snd_data:
+            axs.plot(np.arange(len(snd_data[infile])) /sr, snd_data[infile], label="snd")
 
-        axs.grid(True)
-        axs.set_ylim((-1, 1))
-        axs.set_title(id_file_name)
-        axs.legend()
+            axs.grid(True)
+            axs.set_ylim((-1, 1))
+            axs.set_title(id_file_name)
+            axs.legend()
         if args.diff_mel:
             if ind == 1:
                 ori_mell =  vals

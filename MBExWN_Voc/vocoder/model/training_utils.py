@@ -1,15 +1,13 @@
-#!/usr/bin/env python
 # coding: utf-8
 
-"""
-tfrecord handling and optimizer configuration
-"""
-import abc
-from typing import Iterable
+# AUTHORS
+#    A.Roebel
+# COPYRIGHT
+#    Copyright(c) 2021 - 2022 IRCAM, Roebel
+#
+#
 import tensorflow as tf
 
-tf_VERSION = tf.version.VERSION
-tf_VERSION_major, tf_VERSION_major = tf_VERSION.split(".")[:2]
 import numpy as np
 import os, sys
 from copy import deepcopy

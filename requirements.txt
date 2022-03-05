@@ -1,5 +1,6 @@
-tensorflow>=2.4
+tensorflow>=2.5
 numpy
+scipy
 pyyaml
 tqdm
 librosa>=0.8.0

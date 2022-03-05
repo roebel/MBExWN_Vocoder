@@ -1,23 +1,34 @@
-__copyright__= "Copyright (C) 2022 IRCAM"
+# coding: utf-8
+
+
+# AUTHORS
+#    A.Roebel
+# COPYRIGHT
+#    Copyright(c) 2021 - 2022 IRCAM, Roebel
+#
+# 
 
 import os, sys
 from typing import Dict, List, Tuple, Any, Union
 
-mbexwn_version=(1, 1, 0)
+mbexwn_version=(1, 2, 0)
 
 # this should be a directory containing domains (SING, SPEECH, VOICE) each containing
 # lists of models for that domain.
 # ATTENTION: These lists will be used to selected a matching model using the first come first serves basis.
-# Therfore, the lists should be ordered such that the first entry is the best one.
 # The first entry will be used as default model if only the domain specifier is given.
+# Therefore, the lists should be ordered such that the first entry is the best one.
 _mel_inv_models = {
     "SING" : [
-        "MBExWN_ICASSP_V57_SING_IMPORTmod_WNCHA320_DISC32_MAXDISC1024_DSC2_SPL1_PTACT0.1_PCPQMF1PM1_PSSTFT1_MLW150_4_WT_FCLW0_ADLW0.1_E0_V2_24kHz",
+        "MBExWN_SIIConv_V71g_SING_IMP0_IMPORTmod_MCFG0_WNCHA320_DCHA32_1024_DPTACT0_ADLW0.1_GMCFG5_24kHz",
     ],
     "SPEECH": [
-        "MBExWN_ICASSP_V57_MINV_IMPORTf0_WNCHA320_DISC32_MDISC1024_DSC2_SPL1_PTACT0.1_PCPQMF1PM1_PSSTFT1_MLW150_4_WT_FCLW0_ADLW0.1_E0_V2_24kHz",
-        "MBExWN_GAN_V45_WHITE_WNCH180_WNG1_ADLW01SC2_MINV_NMEL1_KS3_CKS3_PADVFalse_PSEO3_WNC180GRP1_DISC32_MAXDISC1024_DSC2_SPL1_WTwhpuls_FCLW0_ADLW0.1_24kHz",
+        "MBExWN_SIIConv_V71g_SPEECH_IMP0_IMPORTmod_MCFG0_WNCHA320_DCHA32_1024_DPTACT0_ADLW0.1_GMCFG5_24kHz",
+    ],
+    "VOICE": [
+        "MBExWN_SIIConv_V71g_VOICE2_WNCHA340_IMP0_WNCHA340_IMPORTmod_MCFG0_WNCHA340_DCHA32_1024_DPTACT0_ADLW0.1_GMCFG0_24kHz.1_24kHz",
     ]
+
 }
 
 def list_models(voice_type:Union[str, None]=None):
