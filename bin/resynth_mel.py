@@ -14,7 +14,11 @@ from pathlib import Path
 import tensorflow as tf
 import time
 from pysndfile import sndio
-import manage_gpus as gpl
+try :
+    import manage_gpus as gpl
+    have_manage_gpus=True
+except (ImportError, ModuleNotFoundError):
+    have_manage_gpus=False
 
 from sig_proc import db
 
@@ -33,24 +37,25 @@ def main(model_id, input_mell_files, output_dir,
          format="flac", verbose=False, pre_scale_mel = None, seed=42, num_threads=2, quiet=False):
 
     if use_gpu:
-        # configure GPU
-        try:
-            gpu_ids = gpl.board_ids()
-            if gpu_ids is not None:
-                gpu_device_id = -1
-            else:
-                print("resynth_mel::warning:: no gpu devices available on this system, please force using cpu", file=sys.stderr)
-                sys.exit(0)
-        except gpl.NoGpuManager:
-            gpu_device_id = 0
-
-        # now we lock a GPU because we will need one
-        if gpu_device_id is not None:
+        if have_manage_gpus:
+            # configure GPU
             try:
-                gpl.get_gpu_lock(gpu_device_id=gpu_device_id, soft=False)
+                gpu_ids = gpl.board_ids()
+                if gpu_ids is not None:
+                    gpu_device_id = -1
+                else:
+                    print("resynth_mel::warning:: no gpu devices available on this system, please force using cpu", file=sys.stderr)
+                    sys.exit(0)
             except gpl.NoGpuManager:
-                print("resynth_mel::warning::no gpu manager available - will use all available GPUs", file=sys.stderr)
-                pass
+                gpu_device_id = 0
+
+            # now we lock a GPU because we will need one
+            if gpu_device_id is not None:
+                try:
+                    gpl.get_gpu_lock(gpu_device_id=gpu_device_id, soft=False)
+                except gpl.NoGpuManager:
+                    print("resynth_mel::warning::no gpu manager available - will use all available GPUs", file=sys.stderr)
+                    pass
     else:
         os.environ["CUDA_VISIBLE_DEVICES"]=""
 
