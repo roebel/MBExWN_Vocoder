@@ -81,6 +81,14 @@ class SpectLossComponents(tf.Module):
                                                       dtype=np.float32)[:, np.newaxis, np.newaxis]
             self.mean_smoothing_win /= np.sum(self.mean_smoothing_win)
 
+        # these all remain from initial trials, they do not serve anything but are unfortunately
+        # present in the checkpoints.
+        self.PP_segment_size_s = spect_loss_config.get("PP_segment_size_s", 0.025)
+        self.PP_band_width_Hz = spect_loss_config.get("PP_band_width_Hz", 500)
+        self.BC_segment_size_s = spect_loss_config.get("BC_segment_size_s", 0.025)
+        self.BC_max_off_Hz = spect_loss_config.get("BC_max_off_Hz", 2000.)
+        MCC_segment_size_s = spect_loss_config.get("MCC_segment_size_s", 0.05)
+        MCC_pad_size_s = spect_loss_config.get("MCC_pad_size_s", 0.02)
 
         if "loss_type" in spect_loss_config:
 
@@ -101,6 +109,35 @@ class SpectLossComponents(tf.Module):
                 or (self.NPOW_loss_weight > 0)
                 ):
             self.stft_processor = TFSpectProcessor(spect_loss_config, self.sample_rate)
+
+        if "loss_type" in spect_loss_config:
+            # these parameters all remain from initial trials, they do not serve anything but are unfortunately
+            # present in the checkpoints.
+            self.PP_segment_size = [int((self.PP_segment_size_s + hs) / hs) if self.PP_segment_size_s else None
+                                     for lt, hs in zip(spect_loss_config["loss_type"],
+                                                       spect_loss_config["hop_size"]) if lt]
+            self.PP_band_width_bins = [int((ffs * self.PP_band_width_Hz / self.sample_rate + 0.5)) if self.PP_band_width_Hz else None
+                                       for ffs in self.stft_processor.fft_size]
+
+            self.BC_segment_size = [int((self.BC_segment_size_s + hs) / hs) if self.BC_segment_size_s else None
+                                     for lt, hs in zip(spect_loss_config["loss_type"],
+                                                       spect_loss_config["hop_size"]) if lt]
+
+            self.BC_max_off = [int(fft_size * self.BC_max_off_Hz/self.sample_rate)+1 if self.BC_max_off_Hz else None
+                                     for lt, fft_size in zip(spect_loss_config["loss_type"],
+                                                       self.stft_processor.fft_size) if lt]
+
+
+            self.MCC_segment_size = [int((MCC_segment_size_s + hs) / hs)
+                                     for lt, hs in zip(spect_loss_config["loss_type"],
+                                                       spect_loss_config["hop_size"]) if lt]
+
+            self.MCC_pad_size = [int((MCC_pad_size_s + hs) / hs)
+                                 for lt, hs in zip(spect_loss_config["loss_type"],
+                                                   spect_loss_config["hop_size"]) if lt]
+            spect_loss_config["loss_type"] = [lt for lt in spect_loss_config["loss_type"] if lt]
+
+            self.spect_loss_type = spect_loss_config["loss_type"]
 
 
         # frequency dependent weight
