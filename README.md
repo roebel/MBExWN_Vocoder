@@ -14,22 +14,18 @@
 ## Content
 
 **[1. MBExWN_Vocoder](#S1)**
-
   * [1.1. Motivation](#S1-1)
   * [1.2. Demo sounds](#S1-2)
 
 **[2. Installation](#S2)**
-
   * [2.1. Pretrained models](#S2-1)
   * [2.2. Computational costs ](#S2-2)
 
 **[3. Usage](#S3)**
-
   * [3.1 Generating mel spectrograms](#S3-1)
   * [3.2 Performing mel inversion](#S3-2)
 
 **[4. Further info](#S4)**
-
   * [4.1 How to cite](#S4-1)
   * [4.2 Acknowlegdments](#S4-2)
   * [4.3 ChangeLog](#S4-3)
