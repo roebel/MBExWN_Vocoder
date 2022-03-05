@@ -13,29 +13,29 @@
 
 ## Content
 
-**[1. MBExWN_Vocoder](#S1)**
+**[1. Introduction](#S1)**
   * [1.1. Motivation](#S1-1)
   * [1.2. Demo sounds](#S1-2)
 
 **[2. Installation](#S2)**
   * [2.1. Pretrained models](#S2-1)
-  * [2.2. Computational costs ](#S2-2)
 
 **[3. Usage](#S3)**
   * [3.1 Generating mel spectrograms](#S3-1)
   * [3.2 Performing mel inversion](#S3-2)
 
 **[4. Further info](#S4)**
-  * [4.1 How to cite](#S4-1)
-  * [4.2 Acknowlegdments](#S4-2)
-  * [4.3 ChangeLog](#S4-3)
-  * [4.4 Copyright](#S4-4)
+  * [4.1 Computational costs ](#S4-1)
+  * [4.2 How to cite](#S4-2)
+  * [4.3 Acknowlegdments](#S4-3)
+  * [4.4 ChangeLog](#S4-4)
+  * [4.5 Copyright](#S4-5)
 
 ----
 
 
 <a name="S1"></a>
-## 1. MBExWN_Vocoder 
+## 1. Introduction
 
 
 This repository contains the python sources of the Multi-Band Excited WaveNet Neural vocoder, a neural vocoder
@@ -109,17 +109,6 @@ the shell script
 *We gratefully acknowledge the support of GENCI that made it possible to train the models 
 on the super computer [jean-zay](http://www.idris.fr/jean-zay/).*
 
-<a name="S2-2"></a>
-### 2.2 Computational costs
-
-The mel inverter is sufficiently efficient to perform resynthesis from mel spectrograms two times faster than 
-real-time on a single core of a Laptop CPU.  
-
-On a GPU the vocoder achieves audio synthesis up to 200 times faster than real time. Note that tensorflow up to version 
-2.8 is apparently performing an automatic selection of the best performing kernel each time a new shape of a Conv1D or 
-Conv2D operator is encountered. Therefore, MBExWN will only achieve optimal efficiency whenever the shape of a signal
-is encountered for the second time (see  [here](https://github.com/tensorflow/tensorflow/issues/54456) for 
-more information).
 
 <a name="S3"></a>
 ## 3. Usage
@@ -217,8 +206,21 @@ For an example please see the source code of the script `resynth_mel`.
 <a name="S4"></a>
 ## 4. Further info
 
+
 <a name="S4-1"></a>
-### 4.1 How to cite
+### 4.1 Computational costs
+
+The mel inverter is sufficiently efficient to perform resynthesis from mel spectrograms two times faster than 
+real-time on a single core of a Laptop CPU.  
+
+On a GPU the vocoder achieves audio synthesis up to 200 times faster than real time. Note that tensorflow up to version 
+2.8 is apparently performing an automatic selection of the best performing kernel each time a new shape of a Conv1D or 
+Conv2D operator is encountered. Therefore, MBExWN will only achieve optimal efficiency whenever the shape of a signal
+is encountered for the second time (see  [here](https://github.com/tensorflow/tensorflow/issues/54456) for 
+more information).
+
+<a name="S4-2"></a>
+### 4.2 How to cite
 
 In case you use the code or the models for your own work please cite 
 
@@ -228,20 +230,20 @@ Roebel, Axel, and Frederik Bous. 2022.
    Information 13, no. 3: 103. https://doi.org/10.3390/info13030103 
 ```
 
-<a name="S4-2"></a>
-### 4.2 Acknowledgements
+<a name="S4-3"></a>
+### 4.3 Acknowledgements
 
 This research was funded by ANR project ARS, grant number ANR-19-CE38-0001-01 and 
 computation were performed using HPC resources from GENCI-IDRIS (Grant 2021-AD011011177R1).
 
-<a name="S4-3"></a>
-### 4.3 ChangeLog
+<a name="S4-4"></a>
+### 4.4 ChangeLog
 
 - Version 1.2.0  (2022/03/05)
   - Initial release.
 
-<a name="S4-4"></a>
-### 4.4 Copyright
+<a name="S4-5"></a>
+### 4.5 Copyright
 
 Copyright (c) 2022 IRCAM
 
