@@ -6,7 +6,6 @@ import os
 import sys
 import numpy as np
 from argparse import ArgumentParser
-from fileio import iovar as iov
 from pysndfile import sndio
 import matplotlib.pyplot as plt
 
@@ -21,6 +20,7 @@ from MBExWN_NVoc.vocoder.model import config_utils as cutils
 from MBExWN_NVoc.vocoder.model.preprocess import compute_mel_spectrogram_internal
 from MBExWN_NVoc import list_models, mbexwn_version, get_config_file
 from MBExWN_NVoc.sig_proc.resample import resample
+from MBExWN_NVoc.fileio import iovar as iov
 
 
 try:

@@ -16,7 +16,6 @@ import time
 from pysndfile import sndio
 import manage_gpus as gpl
 
-from fileio import iovar as iov
 from sig_proc import db
 
 # check whether we running from the source directroy, in which case the MBExWn_NVoc directry should be
@@ -27,6 +26,7 @@ if os.path.exists(test_path):
     sys.path.insert(0, os.path.dirname(test_path))
 
 from MBExWN_NVoc import mel_inverter, list_models, mbexwn_version
+from MBExWN_NVoc.fileio import iovar as iov
 
 def main(model_id, input_mell_files, output_dir,
          single_seg_synth=True, use_gpu=False, sigma=None,
