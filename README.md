@@ -215,7 +215,7 @@ syn_audio = MelInv.synth_from_mel(log_mel_spectrogram)
 For an example please see the source code of the script `resynth_mel`.
 
 <a name="S4"></a>
-## 4. Further infos
+## 4. Further info
 
 <a name="S4-1"></a>
 ### 4.1 How to cite
