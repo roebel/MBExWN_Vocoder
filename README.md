@@ -10,11 +10,10 @@
 <a href="http://www.idris.fr/jean-zay/"> <img src="img/Logo_GENCI.png" width="25%"></a>
 </p>
 
-This repository is still under construction! Please check back soon
 
 # MBExWN_Vocoder
 
-This repository contains a python code for the Multi-Band Excited WaveNet Neural vocoder, a neural vocoder
+This repository contains the python sources of the Multi-Band Excited WaveNet Neural vocoder, a neural vocoder
 allowing mel spectrogram inversion for speech and singing voices with varying identities, languages, 
 and voice qualities.
 
