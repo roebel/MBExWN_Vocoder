@@ -9,6 +9,7 @@
 &nbsp;
 <a href="http://www.idris.fr/jean-zay/"> <img src="img/Logo_GENCI.png" width="25%"></a>
 </p>
+
 This repository is still under construction! Please check back soon
 
 # MBExWN_Vocoder
@@ -76,8 +77,7 @@ The prepretrained models are available via a separate download link. These can b
 the shell script 
 
 ```bash
-# ATTENTION this is not yet working!
-./scripts/install_MBExWN_models.sh
+./scripts/download_and_install_MBExWN_pretrained_models.sh
 ```
 
 *We gratefully acknowledge the support of GENCI that made it possible to train the models 
@@ -102,15 +102,19 @@ To generate these mel spectograms you can use the script ./bin/generate_mel.py a
 ./bin/generate_mel.py  -o OUTPUT_DIR input_audio_file [input_audio_file ...]
 ```
 
-after running this command you will find mels spectrograms under the output 
-directory. For each input file you will find a pickled data file with the same basename and 
+after running this command you will find the mel spectrograms in the directory OUTPUT_DIR. 
+For each input file you will find a pickled data file with the same basename and 
 the extension replaced by means of mell. The pickled data files contain python dicts
 that have keys for all analysis parameters as well as for the mel specrogram itself.
 
+These files are can be read by the two further scripts that allow 
 
-#### Running mel inversion form the command line
+- recreating sounds from a mel spectrogram, as well as 
+- visualizing a mel spectrogram
 
-ToDo
+#### Running mel inversion from the command line
+
+
 
 #### Using the MBExWN vocoder as a python package
 
@@ -121,8 +125,9 @@ ToDO
 In case you use the code or the models for your own work please cite 
 
 ```
-Roebel, A.; Bous, F. Neural Vocoding for Singing and Speaking Voices with the Multi-Band Excited
-WaveNet. Information 2022, 1, 0. https://doi.org/
+Roebel, Axel, and Frederik Bous. 2022. 
+   "Neural Vocoding for Singing and Speaking Voices with the Multi-Band Excited WaveNet" 
+   Information 13, no. 3: 103. https://doi.org/10.3390/info13030103 
 ```
 
 
@@ -134,3 +139,12 @@ computation were performed using HPC resources from GENCI-IDRIS (Grant 2021-AD01
 ### Copyright
 
 Copyright (c) 2022 IRCAM
+
+
+<p align="center">
+<a href="https://www.ircam.fr/"> <img src="img/IRCAM.CP.jpg" width="20%"></a>
+&nbsp;
+<img src="img/cnrs.png" width="10%">
+&nbsp;
+<a href="http://www.idris.fr/jean-zay/"> <img src="img/LOGO_SU_HORIZ_SEUL_CMJN.png" width="20%"></a>
+</p>
