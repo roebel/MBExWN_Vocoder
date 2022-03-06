@@ -19,7 +19,7 @@ if sys.argv[1] == "get_version":
 setup(
     name="MBExWN_NVoc",
     version=_mbexwn_nvoc_version_str,
-    description="MBExWN Universal Mel Inverter for Speech and Singing Voiced",
+    description="MBExWN Universal Mel Inverter for Speech and Singing",
     include_package_data=True,
     long_description=open("README.md").read(),
     author="Axel Roebel",
