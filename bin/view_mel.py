@@ -16,22 +16,11 @@ if os.path.exists(test_path):
     print(f"development version of MBExWN_NVoc directory detected. We will adapt the path to use it", file=sys.stderr )
     sys.path.insert(0, os.path.dirname(test_path))
 
-from MBExWN_NVoc.vocoder.model import config_utils as cutils
-from MBExWN_NVoc.vocoder.model.preprocess import compute_mel_spectrogram_internal
 from MBExWN_NVoc import list_models, mbexwn_version, get_config_file
 from MBExWN_NVoc.sig_proc.resample import resample
 from MBExWN_NVoc.fileio import iovar as iov
-
-
-try:
-    from MBExWN_NVoc.vocoder.model.config_utils import read_config, modify_config
-    from MBExWN_NVoc.vocoder.model.preprocess import compute_mel_spectrogram_internal, get_stat_env
-except (ModuleNotFoundError, ImportError):
-    new_path = os.path.join(os.path.dirname(__file__), '..')
-    print(f"could not import  MBExWN_NVoc.mel_inverter, try with extended path  {new_path}" )
-    sys.path.insert(0, new_path)
-    from MBExWN_NVoc.vocoder.model.config_utils import read_config, modify_config
-    from MBExWN_NVoc.vocoder.model.preprocess import compute_mel_spectrogram_internal, get_stat_env
+from MBExWN_NVoc.vocoder.model.config_utils import read_config, modify_config
+from MBExWN_NVoc.vocoder.model.preprocess import compute_mel_spectrogram_internal
 
 def uniq_name(infile, infile_list) :
     other_list = [ff for ff in infile_list if ff != infile]
@@ -67,6 +56,8 @@ if __name__ == "__main__":
                     help="arbitrary config file entries in with ':' as field separator (Def: %(default)s)")
     parser.add_argument("-d", "--diff_mel", action="store_true",
                     help="show difference of mel spectra - always compared to first file (Def: %(default)s)")
+    parser.add_argument("-ps", "--plot_snds", action="store_true",
+                    help="display sounds signals in a separte figure (Def: %(default)s)")
     parser.add_argument("-n", "--noise_mask_atten_db", default=None, type=float,
                     help="masking noise added befor calculating the mel spectrum (Def: %(default)s)")
     args = parser.parse_args()
@@ -117,8 +108,10 @@ if __name__ == "__main__":
         max_mell_val_db = np.fmax(max_mell_val_db, np.max(mell))
         min_mell_val_db = np.fmin(min_mell_val_db, np.min(mell))
 
-    fige = plt.figure()
-    figs = plt.figure()
+    fige = plt.figure(constrained_layout=True)
+
+    if args.plot_snds:
+        figs = plt.figure(constrained_layout=True)
     if args.diff_mel:
         figd = plt.figure()
     min_mell_val_db = np.fmax(min_mell_val_db, max_mell_val_db - args.max_atten)
@@ -129,9 +122,7 @@ if __name__ == "__main__":
         axe=fige.add_subplot(len(args.infiles), 1, ind, sharex=master_ax, sharey=master_ax)
         if master_ax is None:
             master_ax=axe
-        axs=figs.add_subplot(len(args.infiles), 1, ind, sharex=master_ax, sharey=mastery_axs)
-        if mastery_axs is None:
-            mastery_axs=axs
+
         vals = plot_data[infile]
         ime=axe.imshow(vals, origin='lower', aspect='auto',
                            extent=[0, vals.shape[1] * pp["hop_size"]/sr, 0, pp["mel_channels"]],
@@ -139,7 +130,12 @@ if __name__ == "__main__":
         fige.colorbar(ime, ax=axe, fraction=0.05,pad=0.02)
         axe.set_title(id_file_name)
         axe.grid(True)
-        if infile in snd_data:
+        if ind != len(args.infiles):
+            plt.setp(axe.get_xticklabels(), visible=False)
+        if args.plot_snds and (infile in snd_data):
+            axs = figs.add_subplot(len(args.infiles), 1, ind, sharex=master_ax, sharey=mastery_axs)
+            if mastery_axs is None:
+                mastery_axs = axs
             axs.plot(np.arange(len(snd_data[infile])) /sr, snd_data[infile], label="snd")
 
             axs.grid(True)
@@ -158,11 +154,6 @@ if __name__ == "__main__":
                 figd.colorbar(imd, ax=axd, fraction=0.05,pad=0.02)
                 axd.set_title(id_file_name)
                 axd.grid(True)
-
-    fige.tight_layout()
-    figs.tight_layout()
-    if args.diff_mel:
-        figd.tight_layout()
 
     plt.show()
 
