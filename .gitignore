@@ -1,4 +1,7 @@
 logs
 __pycache__
 build
-
+dist
+.idea
+MBExWN_NVoc.egg-info
+.local_bash_history

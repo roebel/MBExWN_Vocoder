@@ -33,6 +33,7 @@
 
 ----
 
+<p align="center">  <img src="img/ModelScheme_V3.png" width="75%"> </p>
 
 <a name="S1"></a>
 ## 1. Introduction
