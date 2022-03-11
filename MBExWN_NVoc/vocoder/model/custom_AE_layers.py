@@ -242,8 +242,7 @@ class WaveNetAE(TF2C_BasePretrainableLayer):
                                             use_equalized_lr=use_equalized_lr,
                                             name=f"conv1D_{index}" + (f"g{i_grp}" if i_grp else ""))
 
-                # Nvidia has a weight_norm func here, training stability?
-                # Memory expensive in implementation of tf-addons wrapper
+
                 self.conv_layers.append(in_layer)
                 if index < self.n_layers - 1:
                     res_skip_channels = 2 * self.n_grp_channels
@@ -273,7 +272,7 @@ class WaveNetAE(TF2C_BasePretrainableLayer):
 
     def call(self, inputs, **_):
         """
-         upsample conditiing tensor and
+         upsample conditioning tensor and
          calculate WaveNet output
         """
         audio_0, spect = inputs
