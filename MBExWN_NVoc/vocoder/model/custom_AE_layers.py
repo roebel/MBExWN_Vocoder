@@ -273,9 +273,8 @@ class WaveNetAE(TF2C_BasePretrainableLayer):
 
     def call(self, inputs, **_):
         """
-        This implementation does not require exposing a training boolean flag
-        as only the affine coupling behaviour needs reversing during
-        inference.
+         upsample conditiing tensor and
+         calculate WaveNet output
         """
         audio_0, spect = inputs
 
