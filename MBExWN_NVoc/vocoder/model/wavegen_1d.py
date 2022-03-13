@@ -366,7 +366,7 @@ class WaveGenerator(SpectLossComponents, TF2C_BasePretrainableModel):
 
     def format_loss(self, losses):
         return "".join(
-            ["{}:{:6.3f} ".format(ff, ll) if ll is not "SP_loss" else "{}:{:6.3g} ".format(ff, ll)
+            ["{}:{:6.3f} ".format(ff, ll) if (ll != "SP_loss") else "{}:{:6.3g} ".format(ff, ll)
              for ff, ll in zip(["tot_loss", "SP_loss", "mel_loss",
                                 "NPOW_loss"], losses)
              if ll is not None])
