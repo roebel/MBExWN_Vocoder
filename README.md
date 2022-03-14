@@ -27,7 +27,7 @@
 **[4. Further info](#S4)**
   * [4.1 Computational costs ](#S4-1)
   * [4.2 How to cite](#S4-2)
-  * [4.3 Acknowlegdments](#S4-3)
+  * [4.3 Acknowledgements](#S4-3)
   * [4.4 ChangeLog](#S4-4)
   * [4.5 Copyright](#S4-5)
 
@@ -236,6 +236,15 @@ Roebel, Axel, and Frederik Bous. 2022.
 
 This research was funded by ANR project ARS, grant number ANR-19-CE38-0001-01 and 
 computation were performed using HPC resources from GENCI-IDRIS (Grant 2021-AD011011177R1).
+
+Thanks to 
+
+- [TensorflowTTS](https://github.com/TensorSpeech/TensorflowTTS) from which the MBExWN implementation 
+  has gathered an initial version of the PQMF implementation in 
+  `MBExWN_NVoc/vocoder/model/tf_preprocess.py`.
+
+- [Magenta DDSP](https://github.com/magenta/ddsp) from which the MBExWN implementation has gathered 
+  the method `PulseWaveTable.stable_cumsum_and_wrap` in `MBExWN_NVoc/vocoder/model/tf_wavetable.py`.
 
 <a name="S4-4"></a>
 ### 4.4 ChangeLog

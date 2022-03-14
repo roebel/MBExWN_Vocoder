@@ -3,7 +3,13 @@
 # COPYRIGHT
 #    Copyright(c) 2021 - 2022 IRCAM, Roebel
 #
-# MBExWN implementation
+# Spectral Processing and PQMF
+#
+# _design_prototype_filte and PQMF(layer) are extended versions of the
+# corresponding functions  from
+# https://github.com/TensorSpeech/TensorFlowTTS/blob/master/tensorflow_tts/models/mb_melgan.py
+# See the conde sections below for chnages
+#
 
 import numpy as np
 import tensorflow as tf
@@ -15,7 +21,8 @@ from typing import Union
 from .preprocess import get_mel_filter, get_stft_window
 
 def _design_prototype_filter(taps=62, cutoff_ratio=0.15, beta=9.0):
-    """Design prototype filter for PQMF.
+    """
+    Design prototype filter for PQMF.
     This method is based on `A Kaiser window approach for the design of prototype
     filters of cosine modulated filterbanks`_.
     Args:
@@ -26,6 +33,13 @@ def _design_prototype_filter(taps=62, cutoff_ratio=0.15, beta=9.0):
         ndarray: Impluse response of prototype filter (taps + 1,).
     .. _`A Kaiser window approach for the design of prototype filters of cosine modulated filterbanks`:
         https://ieeexplore.ieee.org/abstract/document/681427
+
+    This function is an extended version of design_prototype_filter from
+    https://github.com/TensorSpeech/TensorFlowTTS/blob/master/tensorflow_tts/models/mb_melgan.py
+    - Copyright 2020 The Multi-band MelGAN Authors , Minh Nguyen (@dathudeptrai) and Tomoki Hayashi (@kan-bayashi)
+    - Apache License, Version 2.0 (the "License")
+
+    Changes: added implementation in tensorflow
     """
     # check the arguments are valid
     assert taps % 2 == 0, "The number of taps mush be even number."
@@ -72,6 +86,15 @@ class TFPQMF(tf.keras.layers.Layer):
         and http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.820.9304&rep=rep1&type=pdf
         Args:
             config (class): MultiBandMelGANGeneratorConfig
+
+        This class is a modified version of design_prototype_filter from
+        https://github.com/TensorSpeech/TensorFlowTTS/blob/master/tensorflow_tts/models/mb_melgan.py
+         - Copyright 2020 The Multi-band MelGAN Authors , Minh Nguyen (@dathudeptrai) and Tomoki Hayashi (@kan-bayashi)
+         - Apache License, Version 2.0 (the "License")
+
+        Changes:
+        - completed Keras layer interface (functions: build, compute_output_shape, and call; properties output_shape)
+        - added interface for retrieving filter transfer function.
         """
         super().__init__( dtype=dtype, name=name,**kwargs)
         self.subbands =subbands
