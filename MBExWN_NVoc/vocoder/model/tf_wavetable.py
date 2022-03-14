@@ -415,11 +415,14 @@ class PulseWaveTable(tf.keras.layers.Layer):
         return self.call(frequency, open_quotient=open_quotient, pulse_gain_list=pulse_gain_list, return_gain=return_gain)
 
 
-
     def stable_cumsum_and_wrap(self, phase_velocity, chunk_size=1000):
         """Get phase by cumulative summation of phase velocity.
 
-        Adapted from ddsp.cors.angular_frequency
+        Adapted from ddsp.core.angular_frequency
+        - Copyright 2021 The DDSP Authors
+        - http://www.apache.org/licenses/LICENSE-2.0
+
+        Changes: variables have been renamed and outut rnage is now in 0,1 and n longer in [0, 2pi]
 
         Custom cumsum splits first axis into chunks to avoid accumulation error.
         Just taking tf.cumsum(phase_velocity) %1 overflows the float32 precision quite easily leading to
