@@ -94,7 +94,7 @@ class TFPQMF(tf.keras.layers.Layer):
         Args:
             config (class): MultiBandMelGANGeneratorConfig
 
-        This class is a modified version of design_prototype_filter from
+        This class is a modified version of PQMF class from
         https://github.com/TensorSpeech/TensorFlowTTS/blob/master/tensorflow_tts/models/mb_melgan.py
          - Copyright 2020 The Multi-band MelGAN Authors , Minh Nguyen (@dathudeptrai) and Tomoki Hayashi (@kan-bayashi)
          - Apache License, Version 2.0 (the "License")
