@@ -5,10 +5,17 @@
 #
 # Spectral Processing and PQMF
 #
-# _design_prototype_filte and PQMF(layer) are extended versions of the
+# -----------------------------
+# Acknowledgements
+#
+# _design_prototype_filter and PQMF(layer) are extended versions of the
 # corresponding functions  from
 # https://github.com/TensorSpeech/TensorFlowTTS/blob/master/tensorflow_tts/models/mb_melgan.py
-# See the conde sections below for chnages
+# Copyright of the original version was:
+# Copyright 2020 The Multi-band MelGAN Authors, Minh Nguyen (@dathudeptrai) and Tomoki Hayashi (@kan-bayashi)
+#
+# See the related code sections below for changes.
+# -----------------------------
 #
 
 import numpy as np

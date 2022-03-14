@@ -4,6 +4,17 @@
 #    Copyright(c) 2021 - 2022 IRCAM, Roebel
 #
 # source wavetable implementation
+#
+# -----------------------------
+# Acknowledgements
+#
+# PulseWaveTable.stable_cumsum_and_wraphas been copied and adapted from the function angular_cumsum in
+# https://github.com/magenta/ddsp/blob/main/ddsp/core.py
+# Copyright of the original version was:
+# Copyright 2022 The DDSP Authors.
+#
+# See the related code sections below for changes.
+# -----------------------------
 
 
 import os
