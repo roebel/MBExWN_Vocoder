@@ -26,7 +26,7 @@ from ...sig_proc.resample import resample
 from ...glottis.FglotspecLF import FglotspecLF
 from ...sig_proc import window as sig_window
 
-from .preprocess import get_mel_filter, get_filters, get_mel_lin_interpol_params
+from .preprocess import get_mel_filter
 
 import scipy.signal as ss
 
@@ -293,7 +293,7 @@ class PulseWaveTable(tf.keras.layers.Layer):
         self.n_period = int(self.wavetables.shape[0] - 1)
         if False:
             import matplotlib.pyplot as plt
-            from sig_proc import db
+            from ...sig_proc import db
             plt.figure()
             fft_size = wavetable_list[-1].shape[0] - 1
 

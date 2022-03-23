@@ -9,10 +9,10 @@
 import numpy as np
 import copy
 from typing import Dict, Union, Tuple
-from utils import nextpow2_val
 import tensorflow as tf
 
-from sig_proc.spec.stft import get_stft_window
+from ...utils import nextpow2_val
+from ...sig_proc.spec.stft import get_stft_window
 
 try:
     from librosa.core.convert import mel_frequencies as librosa_mel_frequencies

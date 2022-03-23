@@ -20,15 +20,14 @@ try :
 except (ImportError, ModuleNotFoundError):
     have_manage_gpus=False
 
-from sig_proc import db
-
-# check whether we running from the source directroy, in which case the MBExWn_NVoc directry should be
-# found next to the current directory. If this is the case we don't want to impot the installed version
+# check whether we running from the source directory, in which case the MBExWN_NVoc directory should be
+# found next to the current directory. If this is the case we don't want to import the installed version
 test_path = os.path.join(os.path.dirname(__file__), '..', 'MBExWN_NVoc')
 if os.path.exists(test_path):
     print(f"development version of MBExWN_NVoc directory detected. We will adapt the path to use it", file=sys.stderr )
     sys.path.insert(0, os.path.dirname(test_path))
 
+from MBExWN_NVoc.sig_proc import db
 from MBExWN_NVoc import mel_inverter, list_models, mbexwn_version
 from MBExWN_NVoc.fileio import iovar as iov
 

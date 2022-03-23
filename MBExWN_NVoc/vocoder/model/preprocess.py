@@ -12,9 +12,19 @@ import numpy as np
 from typing import List, Union, Any, Sequence, Dict, Tuple
 
 import scipy.interpolate
-from sig_proc.spec.stft import calc_stft, STFT, get_stft_window
-import librosa
 
+try:
+    from utils import nextpow2_val
+    from sig_proc.resample import resample
+    from sig_proc.spec.stft import calc_stft, get_stft_window, STFT
+    have_STFT = True
+except (ImportError, ModuleNotFoundError) :
+    from ...utils import nextpow2_val
+    from ...sig_proc.resample import resample
+    from ...sig_proc.spec.stft import calc_stft, get_stft_window
+    have_STFT = False
+
+import librosa
 try:
     from librosa.core.convert import mel_frequencies as librosa_mel_frequencies
     from librosa.core.convert import hz_to_mel as librosa_hz_to_mel
@@ -24,13 +34,8 @@ except ModuleNotFoundError:
     from librosa.core.time_frequency import hz_to_mel as librosa_hz_to_mel
     from librosa.core.time_frequency import mel_to_hz as librosa_mel_to_hz
 
-
-from ...utils import nextpow2_val
-from utils_find_1st import find_1st, cmp_larger
-from sig_proc.resample import resample
 from numpy.lib.stride_tricks import as_strided
 from scipy.ndimage import convolve
-from utils_bspline import bspline_c as bsp
 
 try:
     librosa.feature.melspectrogram(y=np.zeros(2100),norm="slaney")
@@ -67,62 +72,6 @@ def get_mel_filter(sr, n_fft, n_mels, fmin, fmax, dtype=np.dtype('float32'), cen
                                         dtype=dtype)
 
     return mel_basis
-
-def get_filters(sr: Union[int, float], n_fft:int, n_bands: int,
-                fmin : Union[int, float], fmax: Union[int, float],
-                dtype=np.dtype('float32'), centered : bool =False):
-    """
-    Generate equally spaced triangular filter bank
-
-    Parameters
-    ----------
-    sr        : number > 0 [scalar]
-        sampling rate of the incoming signal
-
-    n_fft     : int > 0 [scalar]
-        number of FFT components
-
-    n_bands    : int > 0 [scalar]
-        number of  bands to generate
-
-    fmin      : float >= 0 [scalar]
-        lowest frequency (in Hz)
-
-    fmax      : float >= 0 [scalar]
-        highest frequency (in Hz).
-        If `None`, use ``fmax = sr / 2.0``
-
-    centered: bool
-        centered == True means the bordering mel bands have their centers placed over fmin and fmax,
-        while for centering == False (the default) fmin, fmax are the border frequencies of the bordering bands
-
-    dtype : np.dtype
-        The data type of the output basis.
-        By default, uses 32-bit (single-precision) floating point.
-
-
-    Returns
-    -------
-    M         : np.ndarray [shape=(n_mels, 1 + n_fft/2)]
-    """
-    if fmax is None:
-        fmax = sr/2
-
-    if centered :
-        frequency_positions = np.concatenate(([fmin], np.linspace(fmin, fmax, n_bands), [fmax]), axis=0)
-    else:
-        frequency_positions = np.linspace(fmin, fmax, n_bands + 2)
-
-    bins = np.linspace(0, n_fft//2, n_fft//2+1)
-    # move all filter centers to bin centers
-    quantized_bin_positions = np.array([np.round(n_fft*ff/sr) for ff in frequency_positions])
-    # force last support point to ly outside the axis because otherwise the bspline package generates a zero entry
-    quantized_bin_positions[-1] *= 1.00000001
-    filter_basis = []
-    for ii in range(n_bands):
-        filter_basis.append(bsp.generate_basis(quantized_bin_positions[ii:ii+3], bins).astype(dtype, copy=False)[0])
-
-    return np.array(filter_basis)
 
 
 
@@ -552,6 +501,9 @@ def compute_mel_spectrogram_internal(sound, preprocess_config, dtype=np.dtype('f
             if len(band_limit) != 3:
                 raise RuntimeError("compute_mel_spectrogram_internal::if the band_limit parameter is not None it needs "
                                    "to contain three values: band_lim_low_hz, band_lim_high_hz, band_stop_high_hz")
+        if not have_STFT:
+            raise RuntimeError("compute_mel_spectrogram_internal::cannot use band_limit parameter because you don't have "
+                               "the STFT class available")
 
         spec = STFT(x=sound, win = get_stft_window("hann", win_len=win_len, dtype=dtype),
                     step=preprocess_config['hop_size'], fft_size=preprocess_config['fft_size'],
@@ -560,10 +512,15 @@ def compute_mel_spectrogram_internal(sound, preprocess_config, dtype=np.dtype('f
         filt = np.ones((1, binFreqs.size), dtype=spec.dtype)
 
         if band_limit[0]:
+            from utils_find_1st import find_1st, cmp_larger
+
             ind = find_1st(binFreqs, band_limit[0], cmp_larger)
             if ind >= 0:
                 filt[:,:ind] = 0
+
         if band_limit[1]:
+            from utils_find_1st import find_1st, cmp_larger
+
             ind_high = find_1st(binFreqs, band_limit[1], cmp_larger)
             ind_stop = find_1st(binFreqs, band_limit[2], cmp_larger)
 
@@ -618,8 +575,8 @@ def compute_mel_spectrogram_internal(sound, preprocess_config, dtype=np.dtype('f
 if __name__ == "__main__":
 
     from argparse import ArgumentParser
-    from sig_proc import db
-    from sig_proc.spec.fft import rfft
+    from MBExWN_NVoc.sig_proc import db
+    from numpy.fft import rfft
     from matplotlib import pyplot as plt
 
     parser = ArgumentParser(description="test filter coefficients")
