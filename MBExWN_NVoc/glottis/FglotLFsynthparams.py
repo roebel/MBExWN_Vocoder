@@ -1,7 +1,11 @@
 # AUTHOR:  G.Degottex/A.Roebel
 # COPYRIGHT: Copyright(c) 2008 - 2022 IRCAM/CNRS - Degottex/Roebel
 import numpy as np
-import opt.fzero as fz
+try:
+    import opt.fzero as fz
+except ModuleNotFoundError:
+    fz = None
+
 import scipy.optimize as sopt
 
 #@profile
