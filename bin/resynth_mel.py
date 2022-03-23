@@ -108,10 +108,12 @@ if __name__ == "__main__":
 
     from argparse import ArgumentParser
     parser = ArgumentParser(description="pass a given audio file through and analysis/resynthesis cycle using a waveglow model")
-    parser.add_argument("model_id", default=None, nargs="?",
+    parser.add_argument("model_id", default=None,
                         help="model identifier. If not given the script will list all known model names, one "
                              "of which you should then select to be used. You don't need the full model name "
-                             "the model to be used will be the first in the list of models that contains the given identifier.")
+                             "the model to be used will be the first in the list of models that contains the given identifier. "
+                             "Note that you can also specify a valid path to "
+                             "a model directory to specify models that are not part of the MBExWN_NVoc package.")
     parser.add_argument("-i", "--input_mell_files", nargs="+",  help="list of mell spectra stored in pickle files")
     parser.add_argument("-o", "--output_dir",  help="output directory where synthetic sounds will be stored")
     parser.add_argument("--format", default="flac", help="file format for generated audio files (Def: %(default)s)")
@@ -124,7 +126,7 @@ if __name__ == "__main__":
 
     if not args.model_id:
         print("Please select one of the following models for mel inversion.\nYou don't need to select with a full ID. "
-              "The first model containing the model_id you provide will be selected.\nFor example just specifying SPEECH will"
+              "The first model containing the model_id you provide will be selected.\nFor example just specifying SPEECH will "
               "select the default SPEECH model.\nUsually, the default model is selected to be the most recent one.")
         for kk, ll in list_models().items():
             for md in ll:
