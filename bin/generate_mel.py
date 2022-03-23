@@ -24,10 +24,10 @@ from MBExWN_NVoc import list_models, mbexwn_version, get_config_file
 from MBExWN_NVoc.sig_proc.resample import resample
 
 
-def main(input_audio_files, output_dir):
+def main(input_audio_files, output_dir, model_id="VOICE"):
 
 
-    config_file = get_config_file(model_id_or_path="VOICE")
+    config_file = get_config_file(model_id_or_path=model_id)
 
     if not os.path.exists(config_file) :
         raise FileNotFoundError(f"error::loading config file from {config_file}")
@@ -81,6 +81,13 @@ if __name__ == "__main__":
     parser.add_argument( "input_audio_files", nargs="+", help="input files to process")
     parser.add_argument("-o", "--output_dir", required=True,
                         help="output directory where synthetic sounds will be stored")
+    parser.add_argument("--model_id", default="VOICE", nargs="?", const="",
+                        help="model identifier that is used to read the config file. As all models share the same mel "
+                             "analysis configuration the default model is fine here. "
+                             "In the future models with different mel spectrum configurations may be supported. "
+                             "If you do not specify an argument after the --model_id flag the script will "
+                             "list all available models. Note that you can also specify a valid path to "
+                             "a model directory to specify models that are not part of the MBExWN_NVoc package.")
 
     args= parser.parse_args()
     args_dict = vars(args)

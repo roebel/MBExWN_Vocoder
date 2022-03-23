@@ -43,10 +43,13 @@ def uniq_name(infile, infile_list) :
 if __name__ == "__main__":
     parser = ArgumentParser(description="load and display stored matplotlib fig file")
     parser.add_argument("--infiles", nargs="+", help="sndfiles to analyse or mell files to load")
-    parser.add_argument("--model_id", default=None, nargs="?",
-                        help="model identifier that is used to read the config file. If not given the script will list all known model names, one "
-                             "of which you should then select to be used. You don't need the full model name "
-                             "the script will use the first model containing the given substring.")
+    parser.add_argument("--model_id", default="VOICE", nargs="?", const="",
+                        help="model identifier that is used to read the config file. As all models share the same mel "
+                             "analysis configuration the default model is fine here. "
+                             "In the future models with different mel spectrum configurations may be supported. "
+                             "If you do not specify an argument after the --model_id flag the script will "
+                             "list all available models. Note that you can also specify a valid path to "
+                             "a model directory to specify models that are not part of the MBExWN_NVoc package.")
     parser.add_argument("-ws", "--win_size_for_stats_s", default=0.050, type=float,
                         help="window size for signal stat calculation (Def: %(default)s)")
     parser.add_argument("-hs", "--hop_size_for_stats_s", default=0.010, type=float,
@@ -64,7 +67,7 @@ if __name__ == "__main__":
 
     if not args.model_id:
         print("Please select one of the following models for mel inversion.\nYou don't need to select with a full ID. "
-              "The first model containing the model_id you provide will be selected.\nFor example just specifying SPEECH will"
+              "The first model containing the model_id you provide will be selected.\nFor example just specifying SPEECH will "
               "select the default SPEECH model.\nUsually, the default model is selected to be the most recent one.")
         for kk, ll in list_models().items():
             for md in ll:
