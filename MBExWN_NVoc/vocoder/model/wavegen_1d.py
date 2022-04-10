@@ -465,11 +465,8 @@ class PaNWaveNet(WaveGenerator):
 
     def call(self, inputs, training=None, test_grad=None, *args, **kwargs):
         """
-        Evaluate model against inputs
-
-        if training is false simply return the output of the infer method,
-        which effectively run through the layers backward and invert them.
-        Otherwise run the network in the training "direction".
+        apply model to input tuple containing (audio, mell spectrogram, F0)
+        audio and F0 are used only for internally during training for loss calculation
         """
 
         spect = None
@@ -486,10 +483,7 @@ class PaNWaveNet(WaveGenerator):
     def infer(self, spect, sigma=None, z_in=None, synth_length=0, F0=None, return_F0=False, return_components=False,
               training=False, test_grad=None, **_):
         """
-        Push inputs through network in reverse direction.
-        Two key aspects:
-        Layers in reverse order.
-        Layers are inverted through exposed training boolean.
+        generate sound from input mell spectrogram
         """
 
         synth_length = synth_length if synth_length else self.segment_length

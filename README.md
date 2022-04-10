@@ -249,8 +249,12 @@ Thanks to
 <a name="S4-4"></a>
 ### 4.4 ChangeLog
 
+- Version 1.2.2  (2022/04/10)
+  - fixed display of mel spectrogram differences when mel spectra do not have exactly the same number of frames.
+  - Fixed errors in function documentation.
+
 - Version 1.2.1  (2022/03/23)
-  - Fixd many problems with missing imports.
+  - Fixed many problems with missing imports.
   - More consistent behavior for model selection with the command line scipts.
 
 - Version 1.2.0  (2022/03/05)

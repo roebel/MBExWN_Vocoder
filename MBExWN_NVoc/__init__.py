@@ -11,7 +11,7 @@
 import os, sys
 from typing import Dict, List, Tuple, Any, Union
 
-mbexwn_version=(1, 2, 1)
+mbexwn_version=(1, 2, 2)
 
 # this should be a directory containing domains (SING, SPEECH, VOICE) each containing
 # lists of models for that domain.

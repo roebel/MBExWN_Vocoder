@@ -150,9 +150,10 @@ if __name__ == "__main__":
                 ori_mell =  vals
             else:
                 axd=figd.add_subplot(len(args.infiles), 1, ind, sharex=master_ax, sharey=master_ax)
-                dmax =np.max(np.abs(vals-ori_mell))
-                imd=axd.imshow(vals-ori_mell, origin='lower', aspect='auto',
-                               extent=[0, vals.shape[1] * pp["hop_size"]/sr, 0, pp["mel_channels"]],
+                mintimeind = np.fmin(vals.shape[1], ori_mell.shape[1])
+                dmax =np.max(np.abs(vals[:,:mintimeind]-ori_mell[:,:mintimeind]))
+                imd=axd.imshow(vals[:,:mintimeind]-ori_mell[:,:mintimeind], origin='lower', aspect='auto',
+                               extent=[0, mintimeind * pp["hop_size"]/sr, 0, pp["mel_channels"]],
                                cmap="seismic", vmin=-dmax, vmax=dmax)
                 figd.colorbar(imd, ax=axd, fraction=0.05,pad=0.02)
                 axd.set_title(id_file_name)
