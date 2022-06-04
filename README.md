@@ -69,6 +69,15 @@ Please see [here](http://recherche.ircam.fr/anasyn/roebel/MBExWN_demo/index.php)
 for results with a previous version of the MBExWN vocoder. An updated demo page containing examples 
 for the three models distributed here will soon be added.
 
+As an example of a real world application of the vocoder you may listen to the [artificial voice in a *deep fake* interview](https://youtu.be/seXKtSGf4U8?t=20) of the famous french singer Dalida for that we used  a [DNN for voice reenactement](https://arxiv.org/pdf/2110.03744v3.pdf)
+that converted the mel spectrogramms of the voice of the actress playing Dalida into the mel spectrograms that of the voice of Dalida,
+followed by th WBExWN vocoder (which was not trained on Dalida's voice).
+
+As another example [listen to a presentation of the results](https://youtu.be/FHoBEPBuSP8?t=1853) using the [bottleneck encoder](https://www.mdpi.com/2078-2489/13/3/102)
+for transposing singing voices in the context of the recreation of an artificial version of the voice of the [castrato singer Farinelli](https://en.wikipedia.org/wiki/Farinelli).
+For this work we used the MBExWN model trained on speech and singing voices.
+
+
 <a name="S2"></a>
 ## 2. Installation
 
