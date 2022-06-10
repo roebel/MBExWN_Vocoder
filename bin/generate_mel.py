@@ -9,7 +9,7 @@ import numpy as np
 
 from pysndfile import sndio
 
-# check whether we running from the source directory, in which case the MBExWn_NVoc directry should be
+# check whether we running from the source directory, in which case the MBExWn_NVoc directory should be
 # found next to the current directory. If this is the case we don't want to impot the installed version
 test_path = os.path.join(os.path.dirname(__file__), '..', 'MBExWN_NVoc')
 if os.path.exists(test_path):
