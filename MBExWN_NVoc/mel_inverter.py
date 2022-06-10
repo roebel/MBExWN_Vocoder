@@ -8,6 +8,7 @@
 import os, sys
 import numpy as np
 from pathlib import Path
+from scipy.interpolate import interp1d
 
 from . import list_models, get_config_file
 from .vocoder.model import config_utils as cutils
@@ -46,17 +47,11 @@ class MELInverter(object):
 
     def scale_mel(self, mel_config: Dict, verbose=False):
         lin_scale_win = 1
-
         if np.abs((mel_config['hoplen'] / mel_config['sr']) / (self.hop_size / self.srate) - 1) > 0.001:
             if verbose:
                 print(f"compensate change in analysis hop size. "
                       f"mel analysis has {mel_config['hoplen'] / mel_config['sr']}"
                       f" while the model expects {self.hop_size / self.srate}.", file=sys.stderr)
-            elif (not warn_given):
-                print(f"at least one of the mel spectra does not have the correct hopsize. "
-                      f"mel analysis has {mel_config['hoplen'] / mel_config['sr']} "
-                      f"while the model expects {self.hop_size / self.srate}.", file=sys.stderr)
-                warn_given = True
         if mel_config['sr'] != self.srate:
             if verbose:
                 print(f"    WARNING::sample rate of mel analysis is  {mel_config['sr']} model expects {self.srate}.",
@@ -123,7 +118,7 @@ class MELInverter(object):
             if verbose:
                 print(f"ATTENTION::interpolate mel spectrum to adapt hop "
                       f"size from {(mel_config['hoplen'] / mel_config['sr'])} to {self.hop_size / self.srate}", file=sys.stderr)
-                log_mel_spectrogram = interp1d(
+                log_mel_spectrogram = np.interp1d(
                     np.arange(mell.shape[1]) * mel_config['hoplen'] / mel_config['sr'],
                     log_mel_spectrogram,
                     axis=1,

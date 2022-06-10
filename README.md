@@ -249,6 +249,10 @@ Thanks to
 <a name="S4-4"></a>
 ### 4.4 ChangeLog
 
+- Version 1.2.3  (2022/06/10)
+  - Fixed uninitialized variable.
+  - Fixed missing import
+
 - Version 1.2.2  (2022/04/10)
   - fixed display of mel spectrogram differences when mel spectra do not have exactly the same number of frames.
   - Fixed errors in function documentation.
