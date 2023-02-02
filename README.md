@@ -70,7 +70,7 @@ for results obtained with a previous version of the MBExWN vocoder. The demo pag
 
 As an example of a real world application of the vocoder on unseen speakers you may listen to the [artificial voice in a *deep fake* interview](https://youtu.be/seXKtSGf4U8?t=20) of the famous french singer Dalida for that we used  a [DNN for voice reenactement](https://arxiv.org/pdf/2110.03744v3.pdf)
 that converted the mel spectrogramms of the voice of the actress playing Dalida into the mel spectrograms that of the voice of Dalida,
-followed by th WBExWN vocoder (which was not trained on Dalida's voice). For another example see the reenactment of the voice of the french General de Gaulle [delivering his famous _Appeal of 18 June 1940_](https://www.lemonde.fr/videos/video/2023/01/18/moi-general-de-gaulle-l-appel-du-18-juin-peut-il-etre-reconstitue_6158301_1669088.html) for that no original recoding exist.
+followed by th MBExWN vocoder (which was not trained on Dalida's voice). For another example see the reenactment of the voice of the french General de Gaulle [delivering his famous _Appeal of 18 June 1940_](https://www.lemonde.fr/videos/video/2023/01/18/moi-general-de-gaulle-l-appel-du-18-juin-peut-il-etre-reconstitue_6158301_1669088.html) for that no original recoding exist.
 
 As another example [listen to a presentation of the results](https://youtu.be/FHoBEPBuSP8?t=1853) using the [bottleneck encoder](https://www.mdpi.com/2078-2489/13/3/102)
 for transposing singing voices in the context of the recreation of an artificial version of the voice of the [castrato singer Farinelli](https://en.wikipedia.org/wiki/Farinelli).
@@ -147,8 +147,8 @@ These files are can be read by the two further scripts that allow
 
 #### 3.2.1 Command line
 
-The resynthesis of  sound files from a mel spectrograms stored in a pickle files is performed by mean sof the script 
-`./bin/resynth_mel.py`. Assume you have a sound file test.wav you can perofrm an analysis/resynthesis cycle by means of
+The resynthesis of  sound files from a mel spectrograms stored in a pickle files is performed by means of the script 
+`./bin/resynth_mel.py`. Assume you have a sound file test.wav you can perform an analysis/resynthesis cycle by means of
 
 ```shell
 ./bin/generate_mel.py  -o OUTPUT_DIR test.wav
@@ -156,14 +156,14 @@ The resynthesis of  sound files from a mel spectrograms stored in a pickle files
 ```
 
 This will create a the files `OUTPUT_DIR/test.mell` and subsequenctly `OUTPUT_DIR/syn_test.wav`.
-The output soundfile name is derived from the inut mel file name by means of replacing the extension
-according to the sound file format, adn addinf a prefix `syn_`.  By default the generated sound file format 
+The output soundfile name is derived from the input mel file name by means of replacing the extension
+according to the sound file format, and adding a prefix `syn_`.  By default the generated sound file format 
 is `flac` but as shown above the output format can be changed. The sample rate of the output sound is
 always 24kHz. 
 
 The first parameter given to `resynth_mel.py` selects one of the three pretrained MBExWN models that are 
-discussed in the [paper](https://www.mdpi.com/2078-2489/13/3/103). If no model is slected 
-*the `resynth_mel.py` lists all available models. Currently the folowing models are available:
+discussed in the [paper](https://www.mdpi.com/2078-2489/13/3/103). If no model is selected 
+*the `resynth_mel.py` lists all available models. Currently the following models are available:
 
 ```
  - SING/MBExWN_SIIConv_V71g_SING_IMP0_IMPORTmod_MCFG0_WNCHA320_DCHA32_1024_DPTACT0_ADLW0.1_GMCFG5_24kHz
@@ -173,8 +173,8 @@ discussed in the [paper](https://www.mdpi.com/2078-2489/13/3/103). If no model i
 
 To select a model you don't need to  provide the full model specification.
 Any sub string of the model name will be sufficient. Accordingly, the specification `VOICE` in the 
-example above selects the third model. The search of models is performed in the order of the lost and the first 
-model containing the model id strig is returned. Aurrently, the three model names starting with the strings  
+example above selects the third model. The search of models is performed in the order of the list and the first 
+model containing the string in the model name is selected. Currently, the three model names starting with the strings  
 **SING**, **SPEECH** and **VOICE** correspond to the three models **MW-SI-FD**, **MW-SP-FD**, and **MW-VO-FD** 
 from the [paper](https://www.mdpi.com/2078-2489/13/3/103) respectively.
 
