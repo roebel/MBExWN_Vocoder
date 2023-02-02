@@ -66,12 +66,11 @@ bottleneck has been investigated in this [compagnon paper](https://www.mdpi.com/
 ### 1.2 Demo Sounds
 
 Please see [here](http://recherche.ircam.fr/anasyn/roebel/MBExWN_demo/index.php)
-for results with a previous version of the MBExWN vocoder. An updated demo page containing examples 
-for the three models distributed here will soon be added.
+for results obtained with a previous version of the MBExWN vocoder. The demo page constains examples for the models trained exclusively either on spoken voice or singing voice. If time allows I may add addtional examples for the vocoder trained jointly on spoken and singing voice data. As discussed in the paper, in case you work with spoken voice, you better use the spoken voice model, and in case you are working with singing voice, you best use the mixed model, because adding spoken voice to the training data slightly improves the voice quality for (the irregular voice components in) singing.
 
-As an example of a real world application of the vocoder you may listen to the [artificial voice in a *deep fake* interview](https://youtu.be/seXKtSGf4U8?t=20) of the famous french singer Dalida for that we used  a [DNN for voice reenactement](https://arxiv.org/pdf/2110.03744v3.pdf)
+As an example of a real world application of the vocoder on unseen speakers you may listen to the [artificial voice in a *deep fake* interview](https://youtu.be/seXKtSGf4U8?t=20) of the famous french singer Dalida for that we used  a [DNN for voice reenactement](https://arxiv.org/pdf/2110.03744v3.pdf)
 that converted the mel spectrogramms of the voice of the actress playing Dalida into the mel spectrograms that of the voice of Dalida,
-followed by th WBExWN vocoder (which was not trained on Dalida's voice).
+followed by th WBExWN vocoder (which was not trained on Dalida's voice). For another example see the reenactment of the voice of the french General de Gaulle [delivering his famous _Appeal of 18 June 1940_](https://www.lemonde.fr/videos/video/2023/01/18/moi-general-de-gaulle-l-appel-du-18-juin-peut-il-etre-reconstitue_6158301_1669088.html) for that no original recoding exist.
 
 As another example [listen to a presentation of the results](https://youtu.be/FHoBEPBuSP8?t=1853) using the [bottleneck encoder](https://www.mdpi.com/2078-2489/13/3/102)
 for transposing singing voices in the context of the recreation of an artificial version of the voice of the [castrato singer Farinelli](https://en.wikipedia.org/wiki/Farinelli).
